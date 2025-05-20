@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Modelador com Fabric.js</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="shape amarelo" draggable="true" data-color="yellow">Amarelo</div>
+            <div class="shape azul" draggable="true" data-color="blue">Azul</div>
+            <button id="arrow-button">➤ Seta</button>
+            <button id="edit-text-button">Editar Texto</button>
+            <button id="delete-button">Excluir Item</button>
+            <button id="export-button">Exportar Dados</button>
+            <button id="import-button">Importar Dados</button>
+        </div>
+        <canvas id="canvas" width="1000" height="600"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
