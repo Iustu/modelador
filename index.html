@@ -2,24 +2,42 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Modelador com Fabric.js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modelador de Diagramas</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <div class="shape amarelo" draggable="true" data-color="yellow">Amarelo</div>
-            <div class="shape azul" draggable="true" data-color="blue">Azul</div>
-            <button id="arrow-button">➤ Seta</button>
-            <button id="edit-text-button">Editar Texto</button>
-            <button id="delete-button">Excluir Item</button>
-            <button id="export-button">Exportar Dados</button>
-            <button id="import-button">Importar Dados</button>
-        </div>
-        <canvas id="canvas" width="1000" height="600"></canvas>
+    <div id="app-container">
+        <header class="app-header"><h1>Modelador de Diagramas</h1></header>
+        <main class="main-content">
+            <aside class="sidebar">
+                <div class="sidebar-group">
+                    <h3>Formas</h3>
+                    <div class="shape amarelo" draggable="true" data-color="yellow">Caixa Amarela</div>
+                    <div class="shape azul" draggable="true" data-color="blue">Caixa Azul</div>
+                </div>
+                <div class="sidebar-group">
+                    <h3>Ferramentas</h3>
+                    <button id="arrow-button">➤ Inserir Seta</button>
+                    <button id="edit-text-button">✎ Editar Texto</button>
+                    <button id="delete-button">🗑️ Excluir Item</button>
+                </div>
+                <div class="sidebar-group">
+                    <h3>Arquivo</h3>
+                    <button id="export-button">💾 Exportar JSON</button>
+                    <button id="import-button">📂 Importar JSON</button>
+                </div>
+            </aside>
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="1000" height="750"></canvas>
+            </div>
+        </main>
     </div>
-    <script src="script.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/content.js"></script>
+    <script src="js/arrow.js"></script>
+    <script src="js/import_export.js"></script>
 </body>
 </html>
