@@ -34,7 +34,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    //Cria uma seta padrão entre dois objetos.
+    function updateParentChildRelationship(startObj, endObj) {
+        // Regra A: Seta de Assunto -> Conteúdo
+        if (startObj.customType === 'subject' && endObj.customType === 'content') {
+            // Evita adicionar filhos duplicados
+            if (!startObj.childrenIds.includes(endObj.objectId)) {
+                startObj.childrenIds.push(endObj.objectId);
+            }
+            endObj.parentId = startObj.objectId;
+            console.log(`Conteúdo '${endObj.objectId}' agora é filho do Assunto '${startObj.objectId}'.`);
+            console.log("Filhos do Assunto:", startObj.childrenIds);
+        }
+        // Regra B: Seta de Conteúdo -> Conteúdo (relação transitiva)
+        else if (startObj.customType === 'content' && endObj.customType === 'content') {
+            // Se o conteúdo de origem tiver um pai...
+            if (startObj.parentId) {
+                // Encontra o objeto pai (o Assunto) no canvas
+                const parentSubject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
+                if (parentSubject) {
+                    // Adiciona o novo conteúdo como filho do mesmo Assunto
+                    if (!parentSubject.childrenIds.includes(endObj.objectId)) {
+                        parentSubject.childrenIds.push(endObj.objectId);
+                    }
+                    endObj.parentId = parentSubject.objectId;
+                    console.log(`Conteúdo '${endObj.objectId}' agora também é filho do Assunto '${parentSubject.objectId}'.`);
+                    console.log("Filhos do Assunto:", parentSubject.childrenIds);
+                }
+            }
+        }
+    }
+
     window.createStandardArrow = function(startObj, endObj) {
         const startPoint = getEdgePoint(startObj, endObj.getCenterPoint());
         const endPoint = getEdgePoint(endObj, startObj.getCenterPoint());
@@ -42,7 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const angle = fabric.util.radiansToDegrees(Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x)) + 90;
         const tri = new fabric.Triangle({ width: 10, height: 15, fill: 'black', left: endPoint.x, top: endPoint.y, angle: angle, originX: 'center', originY: 'center', selectable: false, objectCaching: false });
         const arrow = new fabric.Group([line, tri], { type: 'arrow', arrowSubType: 'standard', from: startObj.objectId, to: endObj.objectId, selectable: true });
+        
         canvas.add(arrow).setActiveObject(arrow);
+        
+        // Chama a nova função após criar a seta
+        updateParentChildRelationship(startObj, endObj);
     }
 
     //cria uma seta de auto-loop em um objeto.

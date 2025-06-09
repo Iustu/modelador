@@ -25,6 +25,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const rectWidth = 140, rectHeight = 60;
         const rect = new fabric.Rect({ width: rectWidth, height: rectHeight, fill: fillColor, rx: 5, ry: 5 });
         const text = new fabric.Textbox(userText, { width: rectWidth - 20, fontSize: 16, textAlign: 'center', fill: '#000', originX: 'center', originY: 'center', left: rectWidth / 2, top: rectHeight / 2 });
+        
+        const groupOptions = {
+            left: x, top: y, objectId: generateId(), type: 'box',
+            hasControls: true, selectable: true
+        };
+
+        if (colorKey === 'yellow') {
+            // Retângulos amarelos são ASSUNTOS
+            groupOptions.customType = 'subject';
+            groupOptions.childrenIds = []; // Inicializa o array de filhos
+        } else {
+            // Retângulos azuis são CONTEÚDOS
+            groupOptions.customType = 'content';
+            groupOptions.parentId = null; // Inicializa o ID do pai como nulo
+        }
+
         const group = new fabric.Group([rect, text], { left: x, top: y, objectId: generateId(), type: 'box', hasControls: true, selectable: true });
         
         canvas.add(group).setActiveObject(group);
