@@ -14,24 +14,25 @@
             <aside class="sidebar">
                 <div class="sidebar-group">
                     <h3>Formas</h3>
-                    <div class="shape amarelo" draggable="true" data-color="yellow">Assunto</div>
-                    <div class="shape azul" draggable="true" data-color="blue">Conteúdo</div>
+                    <div class="shape amarelo" draggable="true" data-color="yellow" title="Um conjunto de conteúdos">Assunto</div>
+                    <div class="shape azul" draggable="true" data-color="blue" title="Contem explicações">Conteúdo</div>
                 </div>
                 <div class="sidebar-group">
                     <h3>Ferramentas</h3>
-                    <button id="arrow-button" title="Ative para desenhar. Depois, clique no objeto de início e no de destino.">➤ Seta Percorrível</button>
-                    <button id="dashed-arrow-button" title="Ative para desenhar uma seta tracejada. Depois, clique no objeto de início e no de destino.">⤏ Seta Bloqueada</button>
+                    <button id="arrow-button" title="Clique para desenhar. Depois, clique no objeto de início e no de destino.">-➤ Seta contínua</button>
+                    <button id="dashed-arrow-button" title="Clique para desenhar. Depois, clique no objeto de início e no de destino.">⤏ Seta tracejada</button>
                     <button id="edit-text-button">✎ Editar Texto</button>
                     <button id="delete-button">🗑️ Excluir Item</button>
                 </div>
                 <div class="sidebar-group">
                     <h3>Arquivo</h3>
-                    <button id="export-button">💾 Exportar JSON</button>
-                    <button id="import-button">📂 Importar JSON</button>
+                    <button id="export-button">💾 Exportar</button>
+                    <button id="import-button">📂 Importar</button>
                 </div>
             </aside>
             <div class="canvas-wrapper">
                 <canvas id="canvas"></canvas>
+                <button id="complete-button" title="Marcar como concluída">✔</button>
             </div>
         </main>
     </div>

@@ -1,3 +1,4 @@
+// Manipula o botão de exportar para JSON.
 document.getElementById("export-button").addEventListener("click", () => {
     const data = {
         boxes: [],
@@ -25,12 +26,11 @@ document.getElementById("export-button").addEventListener("click", () => {
             }
             data.boxes.push(boxData);
         } else if (obj.type === 'arrow') {
-            // Adiciona o novo campo 'tipo' ao objeto salvo
             data.arrows.push({
                 from: obj.from,
                 to: obj.to,
                 arrowSubType: obj.arrowSubType,
-                tipo: obj.tipo 
+                tipo: obj.tipo
             });
         }
     });
@@ -40,10 +40,11 @@ document.getElementById("export-button").addEventListener("click", () => {
     a.href = URL.createObjectURL(blob);
     a.download = "diagrama.json";
     document.body.appendChild(a);
-a.click();
+    a.click();
     document.body.removeChild(a);
 });
 
+// Manipula o botão de importar de um arquivo JSON.
 document.getElementById("import-button").addEventListener("click", () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -51,12 +52,14 @@ document.getElementById("import-button").addEventListener("click", () => {
     input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
         const content = await file.text();
         const data = JSON.parse(content);
 
         canvas.clear();
         const idToObjectMap = {};
 
+        // Recria as caixas.
         data.boxes.forEach(boxData => {
             const rect = new fabric.Rect({ width: 140, height: 60, fill: boxData.fill, rx: 5, ry: 5 });
             const text = new fabric.Textbox(boxData.text, { width: 120, fontSize: 16, textAlign: 'center', fill: '#000', originX: 'center', originY: 'center', left: 70, top: 30 });
@@ -76,12 +79,14 @@ document.getElementById("import-button").addEventListener("click", () => {
             idToObjectMap[boxData.id] = group;
         });
 
+        // Recria as setas.
         data.arrows.forEach(arrowData => {
             const startObj = idToObjectMap[arrowData.from];
             const endObj = idToObjectMap[arrowData.to];
-            if (!startObj || !endObj) return;
-
-            // Usa o 'tipo' salvo para chamar a função de criação correta
+            if (!startObj || !endObj) {
+                console.warn("Objeto de seta não encontrado na importação:", arrowData);
+                return;
+            }
             if (arrowData.arrowSubType === 'selfLoop') {
                 window.createSelfLoopArrow(startObj, arrowData.tipo);
             } else {

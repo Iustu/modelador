@@ -1,0 +1,68 @@
+{
+  "boxes": [
+    {
+      "id": "obj-861tx1vr7",
+      "left": 137,
+      "top": 145,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Pai",
+      "fill": "rgb(241, 196, 15)",
+      "customType": "subject",
+      "childrenIds": [
+        "obj-4umgz34wr"
+      ]
+    },
+    {
+      "id": "obj-4umgz34wr",
+      "left": 147,
+      "top": 311,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Filho",
+      "fill": "rgb(52, 152, 219)",
+      "customType": "content",
+      "parentId": "obj-861tx1vr7"
+    },
+    {
+      "id": "obj-ll01gr7xz",
+      "left": 153,
+      "top": 494,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Neto",
+      "fill": "rgb(52, 152, 219)",
+      "customType": "content",
+      "parentId": null
+    },
+    {
+      "id": "obj-ml4nzv46i",
+      "left": 156,
+      "top": 657,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Bisneto",
+      "fill": "rgb(52, 152, 219)",
+      "customType": "content",
+      "parentId": null
+    }
+  ],
+  "arrows": [
+    {
+      "from": "obj-ll01gr7xz",
+      "to": "obj-ml4nzv46i",
+      "arrowSubType": "standard",
+      "tipo": "Percorrível"
+    },
+    {
+      "from": "obj-861tx1vr7",
+      "to": "obj-4umgz34wr",
+      "arrowSubType": "standard",
+      "tipo": "Percorrível"
+    }
+  ]
+}
