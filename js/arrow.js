@@ -26,7 +26,6 @@ window.handleMouseDownForArrow = function (e) {
         window.arrowStartObject = e.target;
     } else {
         const endBox = e.target;
-        // Passa o tipo da seta como um parâmetro para a função de criação.
         if (window.arrowStartObject.objectId === endBox.objectId) {
             window.createSelfLoopArrow(window.arrowStartObject, window.arrowTypeToDraw);
         } else {
@@ -38,22 +37,24 @@ window.handleMouseDownForArrow = function (e) {
     }
 };
 
-// Atualiza a relação de parentesco com base na seta criada.
+// ATUALIZADO: Atualiza a relação de parentesco chamando a reconstrução da árvore.
 function updateParentChildRelationship(startObj, endObj) {
-    if (startObj.customType === 'subject' && endObj.customType === 'content') {
-        if (!startObj.childrenIds.includes(endObj.objectId)) {
-            startObj.childrenIds.push(endObj.objectId);
-        }
-        endObj.parentId = startObj.objectId;
-    } 
-    else if (startObj.customType === 'content' && endObj.customType === 'content' && startObj.parentId) {
-        const parentSubject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
-        if (parentSubject) {
-            if (!parentSubject.childrenIds.includes(endObj.objectId)) {
-                parentSubject.childrenIds.push(endObj.objectId);
-            }
-            endObj.parentId = parentSubject.objectId;
-        }
+    // A lógica de parentesco só se aplica a setas que terminam em um 'content'.
+    if (endObj.customType !== 'content') return;
+
+    let subject = null;
+    // Encontra o "Assunto" raiz da cadeia.
+    if (startObj.customType === 'subject') {
+        subject = startObj;
+    } else if (startObj.parentId) { // Se o objeto inicial já pertence a um assunto.
+        subject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
+    }
+
+    // Se um "Assunto" foi encontrado, reconstruímos toda a sua lista de filhos.
+    if (subject && typeof window.rebuildChildrenList === 'function') {
+        // Usamos um pequeno timeout para garantir que a seta já foi renderizada no canvas
+        // antes de percorrer a árvore de objetos para a reconstrução.
+        setTimeout(() => window.rebuildChildrenList(subject), 0);
     }
 }
 
@@ -63,7 +64,6 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
     const endPoint = getEdgePoint(endObj, startObj.getCenterPoint());
 
     const lineOptions = { stroke: 'black', strokeWidth: 2, selectable: false, objectCaching: false };
-    // Usa o parâmetro 'tipo' para decidir o estilo.
     if (tipo === 'Bloqueado') {
         lineOptions.strokeDashArray = [5, 5];
     }
@@ -77,7 +77,7 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
         arrowSubType: 'standard',
         from: startObj.objectId,
         to: endObj.objectId,
-        tipo: tipo, // Usa o parâmetro 'tipo'.
+        tipo: tipo,
         selectable: true,
         lockMovementX: true,
         lockMovementY: true,
@@ -95,7 +95,6 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
 window.createSelfLoopArrow = function(box, tipo) {
     const points = getSelfLoopPoints(box);
     const pathOptions = { stroke: 'black', strokeWidth: 2, fill: null, selectable: false, objectCaching: false };
-    // Usa o parâmetro 'tipo' para decidir o estilo.
     if (tipo === 'Bloqueado') {
         pathOptions.strokeDashArray = [5, 5];
     }
@@ -109,7 +108,7 @@ window.createSelfLoopArrow = function(box, tipo) {
         arrowSubType: 'selfLoop',
         from: box.objectId,
         to: box.objectId,
-        tipo: tipo, // Usa o parâmetro 'tipo'.
+        tipo: tipo,
         selectable: true,
         lockMovementX: true,
         lockMovementY: true,

@@ -10,23 +10,8 @@
       "text": "Pai",
       "fill": "rgb(241, 196, 15)",
       "customType": "subject",
-      "childrenIds": [
-        "obj-q7zgk5dtr",
-        "obj-7zlo740r8",
-        "obj-dlxyc9noq"
-      ]
-    },
-    {
-      "id": "obj-q7zgk5dtr",
-      "left": 136,
-      "top": 279,
-      "scaleX": 1,
-      "scaleY": 1,
-      "angle": 0,
-      "text": "Filho",
-      "fill": "rgb(52, 152, 219)",
-      "customType": "content",
-      "parentId": "obj-igpyk6ois"
+      "isCompleted": false,
+      "childrenIds": []
     },
     {
       "id": "obj-7zlo740r8",
@@ -38,7 +23,8 @@
       "text": "Neto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "parentId": "obj-igpyk6ois"
+      "isCompleted": false,
+      "parentId": null
     },
     {
       "id": "obj-dlxyc9noq",
@@ -50,7 +36,8 @@
       "text": "Bisneto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "parentId": "obj-igpyk6ois"
+      "isCompleted": false,
+      "parentId": null
     },
     {
       "id": "obj-0ubqsvk0o",
@@ -62,6 +49,7 @@
       "text": "Tio",
       "fill": "rgb(241, 196, 15)",
       "customType": "subject",
+      "isCompleted": false,
       "childrenIds": [
         "obj-1cc0qhtdq"
       ]
@@ -76,6 +64,7 @@
       "text": "Primo",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": "obj-0ubqsvk0o"
     },
     {
@@ -88,22 +77,11 @@
       "text": "Amigo",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": null
     }
   ],
   "arrows": [
-    {
-      "from": "obj-igpyk6ois",
-      "to": "obj-q7zgk5dtr",
-      "arrowSubType": "standard",
-      "tipo": "Percorrível"
-    },
-    {
-      "from": "obj-q7zgk5dtr",
-      "to": "obj-7zlo740r8",
-      "arrowSubType": "standard",
-      "tipo": "Percorrível"
-    },
     {
       "from": "obj-7zlo740r8",
       "to": "obj-dlxyc9noq",

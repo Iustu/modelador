@@ -15,12 +15,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // ATUALIZADO: Eventos de exclusão agora chamam handleDelete sem argumentos.
     document.getElementById('delete-button').addEventListener('click', () => {
-        handleDelete(canvas.getActiveObject());
+        handleDelete();
     });
     document.addEventListener('keydown', e => {
         if (e.key === 'Delete') {
-            handleDelete(canvas.getActiveObject());
+            e.preventDefault(); // Impede ações padrão do navegador.
+            handleDelete();
         }
     });
 
@@ -43,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Reconstrói a lista de filhos de um Assunto a partir do zero.
-    // Esta é a forma mais segura de garantir a consistência após uma exclusão.
     function rebuildChildrenList(subject) {
         if (!subject || subject.customType !== 'subject') return;
 
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         
-        // Limpa o parentId de quaisquer filhos que se tornaram órfãos.
         oldChildrenIds.forEach(childId => {
             if (!subject.childrenIds.includes(childId)) {
                 const orphanedChild = allObjects.find(o => o.objectId === childId);
@@ -83,48 +83,72 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         
-        console.log(`Árvore do Assunto '${subject.objectId}' reconstruída. Filhos:`, subject.childrenIds);
+        console.log(`Árvore do Assunto '${subject.text || subject.objectId}' reconstruída. Filhos:`, subject.childrenIds);
     }
     
-    // Lógica central de exclusão, agora mais robusta.
-    function handleDelete(activeObject) {
-        if (!activeObject) return alert("Nenhum item selecionado para excluir.");
+    window.rebuildChildrenList = rebuildChildrenList;
+    
+    // ATUALIZADO: Lógica de exclusão que suporta múltiplos itens com confirmação.
+    function handleDelete() {
+        const activeSelection = canvas.getActiveObject();
+        if (!activeSelection) {
+            alert("Nenhum item selecionado para excluir.");
+            return;
+        }
 
-        let subjectToRevalidate = null;
-        
-        // Determina se a exclusão afeta uma árvore de filhos.
-        if (activeObject.type === 'box') {
-            if (activeObject.customType === 'subject') {
-                subjectToRevalidate = activeObject;
-            } else if (activeObject.customType === 'content' && activeObject.parentId) {
-                subjectToRevalidate = canvas.getObjects().find(o => o.objectId === activeObject.parentId);
+        const objectsInSelection = activeSelection.type === 'activeSelection'
+            ? activeSelection.getObjects()
+            : [activeSelection];
+
+        if (objectsInSelection.length > 1) {
+            const confirmed = confirm(`Você tem certeza que deseja excluir os ${objectsInSelection.length} itens selecionados?`);
+            if (!confirmed) {
+                return;
             }
-        } else if (activeObject.type === 'arrow' && activeObject.from) {
-             const startObj = canvas.getObjects().find(o => o.objectId === activeObject.from);
-             if (startObj && startObj.parentId) {
-                 subjectToRevalidate = canvas.getObjects().find(o => o.objectId === startObj.parentId);
-             } else if (startObj && startObj.customType === 'subject') {
-                 subjectToRevalidate = startObj;
-             }
         }
 
-        // Encontra todos os objetos a serem removidos.
-        const objectsToRemove = [activeObject];
-        if (activeObject.type === 'box') {
-            canvas.getObjects().forEach(obj => {
-                if (obj.type === 'arrow' && (obj.from === activeObject.objectId || obj.to === activeObject.objectId)) {
-                    objectsToRemove.push(obj);
+        const subjectsToRevalidate = new Set();
+        const allObjectsToRemove = new Set(objectsInSelection);
+
+        objectsInSelection.forEach(selectedObj => {
+            let parentSubject = null;
+            if (selectedObj.type === 'box') {
+                if (selectedObj.customType === 'subject') {
+                    parentSubject = selectedObj;
+                } else if (selectedObj.parentId) {
+                    parentSubject = canvas.getObjects().find(o => o.objectId === selectedObj.parentId);
                 }
-            });
-        }
-        
-        // Remove os objetos do canvas.
-        objectsToRemove.forEach(obj => canvas.remove(obj));
+                canvas.getObjects().forEach(arrow => {
+                    if (arrow.type === 'arrow' && (arrow.from === selectedObj.objectId || arrow.to === selectedObj.objectId)) {
+                        allObjectsToRemove.add(arrow);
+                    }
+                });
+            }
+            else if (selectedObj.type === 'arrow' && selectedObj.from) {
+                const startObj = canvas.getObjects().find(o => o.objectId === selectedObj.from);
+                if (startObj) {
+                    if (startObj.customType === 'subject') {
+                        parentSubject = startObj;
+                    } else if (startObj.parentId) {
+                        parentSubject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
+                    }
+                }
+            }
 
-        // Se uma árvore foi afetada, reconstrói sua lista de filhos.
-        if (subjectToRevalidate) {
-            rebuildChildrenList(subjectToRevalidate);
-        }
+            if (parentSubject) {
+                subjectsToRevalidate.add(parentSubject);
+            }
+        });
+
+        allObjectsToRemove.forEach(obj => canvas.remove(obj));
+        
+        canvas.discardActiveObject();
+
+        subjectsToRevalidate.forEach(subject => {
+            if (!allObjectsToRemove.has(subject)) {
+                window.rebuildChildrenList(subject);
+            }
+        });
 
         canvas.renderAll();
     }
