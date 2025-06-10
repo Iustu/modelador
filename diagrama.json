@@ -1,9 +1,9 @@
 {
   "boxes": [
     {
-      "id": "obj-d7y6nc0nl",
-      "left": 115,
-      "top": 120,
+      "id": "obj-i2pzix5p9",
+      "left": 108,
+      "top": 100,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
@@ -11,65 +11,66 @@
       "fill": "rgb(241, 196, 15)",
       "customType": "subject",
       "childrenIds": [
-        "obj-76nw2kav8",
-        "obj-s61slemdd"
+        "obj-yp73z34ky",
+        "obj-hggxv0emq",
+        "obj-yd2hyi7br"
       ]
     },
     {
-      "id": "obj-76nw2kav8",
-      "left": 113,
-      "top": 297,
+      "id": "obj-yp73z34ky",
+      "left": 115,
+      "top": 239,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Filho",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "parentId": "obj-d7y6nc0nl"
+      "parentId": "obj-i2pzix5p9"
     },
     {
-      "id": "obj-s61slemdd",
-      "left": 123,
-      "top": 463,
+      "id": "obj-hggxv0emq",
+      "left": 119,
+      "top": 363,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Neto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "parentId": "obj-d7y6nc0nl"
+      "parentId": "obj-i2pzix5p9"
     },
     {
-      "id": "obj-x0t84t9vk",
-      "left": 488,
-      "top": 196,
+      "id": "obj-yd2hyi7br",
+      "left": 124,
+      "top": 496,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
-      "text": "Amigo",
+      "text": "Bisneto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "parentId": null
+      "parentId": "obj-i2pzix5p9"
     }
   ],
   "arrows": [
     {
-      "from": "obj-d7y6nc0nl",
-      "to": "obj-76nw2kav8",
+      "from": "obj-i2pzix5p9",
+      "to": "obj-yp73z34ky",
       "arrowSubType": "standard",
       "tipo": "Percorrível"
     },
     {
-      "from": "obj-76nw2kav8",
-      "to": "obj-s61slemdd",
+      "from": "obj-yp73z34ky",
+      "to": "obj-hggxv0emq",
       "arrowSubType": "standard",
       "tipo": "Percorrível"
     },
     {
-      "from": "obj-d7y6nc0nl",
-      "to": "obj-x0t84t9vk",
+      "from": "obj-hggxv0emq",
+      "to": "obj-yd2hyi7br",
       "arrowSubType": "standard",
-      "tipo": "Bloqueado"
+      "tipo": "Percorrível"
     }
   ]
 }
