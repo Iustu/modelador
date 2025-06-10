@@ -7,7 +7,6 @@ document.querySelectorAll('.shape[draggable="true"]').forEach(shape => {
 });
 
 // Define a função que manipula o evento 'drop' no canvas.
-// Fica disponível globalmente para o canvas.js usar.
 window.handleDropOnCanvas = function(e) {
     e.preventDefault();
     if (e.dataTransfer.getData('type') !== 'rect') return;
@@ -29,10 +28,10 @@ window.handleDropOnCanvas = function(e) {
 
     const groupOptions = {
         left: x, top: y, objectId: generateId(), type: 'box',
-        hasControls: true, selectable: true
+        hasControls: true, selectable: true,
+        isCompleted: false // <-- ADICIONADO: Estado inicial de conclusão
     };
 
-    // Define o tipo do objeto ('subject' ou 'content') com base na cor.
     if (colorKey === 'yellow') {
         groupOptions.customType = 'subject';
         groupOptions.childrenIds = [];

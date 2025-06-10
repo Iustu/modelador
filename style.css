@@ -112,6 +112,7 @@ body {
     align-items: center;
     justify-content: center;
     background-color: #e4e8eb;
+    position: relative;
 }
 
 #canvas {
@@ -140,10 +141,12 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 100; /* Garante que fique sobre os outros elementos */
     padding: 0;
-    line-height: 26px;
+    line-height: 26px; /* Ajusta o alinhamento vertical do ✔ */
     text-align: center;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
 #complete-button:hover {
     background-color: #27ae60; /* Verde mais escuro */
+    transform: scale(1.1);
 }
