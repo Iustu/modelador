@@ -1,77 +1,66 @@
 {
   "boxes": [
     {
-      "id": "obj-tk8bsm838",
-      "left": 261,
-      "top": 98,
+      "id": "obj-d7y6nc0nl",
+      "left": 115,
+      "top": 120,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Pai",
       "fill": "rgb(241, 196, 15)",
       "customType": "subject",
-      "isCompleted": false,
       "childrenIds": [
-        "obj-k67xvyhkg",
-        "obj-exybs9arp"
+        "obj-76nw2kav8"
       ]
     },
     {
-      "id": "obj-k67xvyhkg",
-      "left": 258,
-      "top": 257,
+      "id": "obj-76nw2kav8",
+      "left": 113,
+      "top": 297,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Filho",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "isCompleted": false,
-      "parentId": "obj-tk8bsm838"
+      "parentId": "obj-d7y6nc0nl"
     },
     {
-      "id": "obj-exybs9arp",
-      "left": 257,
-      "top": 418,
+      "id": "obj-s61slemdd",
+      "left": 123,
+      "top": 463,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Neto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "isCompleted": false,
-      "parentId": "obj-tk8bsm838"
+      "parentId": null
     },
     {
-      "id": "obj-aum8b38ah",
-      "left": 611,
-      "top": 226,
+      "id": "obj-x0t84t9vk",
+      "left": 488,
+      "top": 196,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
-      "text": "Órfão",
+      "text": "Amigo",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "isCompleted": false,
       "parentId": null
     }
   ],
   "arrows": [
     {
-      "from": "obj-tk8bsm838",
-      "to": "obj-k67xvyhkg",
+      "from": "obj-d7y6nc0nl",
+      "to": "obj-76nw2kav8",
       "arrowSubType": "standard",
       "tipo": "Percorrível"
     },
     {
-      "from": "obj-k67xvyhkg",
-      "to": "obj-exybs9arp",
-      "arrowSubType": "standard",
-      "tipo": "Percorrível"
-    },
-    {
-      "from": "obj-tk8bsm838",
-      "to": "obj-aum8b38ah",
+      "from": "obj-d7y6nc0nl",
+      "to": "obj-x0t84t9vk",
       "arrowSubType": "standard",
       "tipo": "Bloqueado"
     }

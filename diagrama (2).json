@@ -10,9 +10,9 @@
       "text": "Pai",
       "fill": "rgb(241, 196, 15)",
       "customType": "subject",
+      "isCompleted": false,
       "childrenIds": [
-        "obj-76nw2kav8",
-        "obj-s61slemdd"
+        "obj-76nw2kav8"
       ]
     },
     {
@@ -25,6 +25,7 @@
       "text": "Filho",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": "obj-d7y6nc0nl"
     },
     {
@@ -37,7 +38,8 @@
       "text": "Neto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
-      "parentId": "obj-d7y6nc0nl"
+      "isCompleted": false,
+      "parentId": null
     },
     {
       "id": "obj-x0t84t9vk",
@@ -49,6 +51,7 @@
       "text": "Amigo",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": null
     }
   ],
@@ -56,12 +59,6 @@
     {
       "from": "obj-d7y6nc0nl",
       "to": "obj-76nw2kav8",
-      "arrowSubType": "standard",
-      "tipo": "Percorrível"
-    },
-    {
-      "from": "obj-76nw2kav8",
-      "to": "obj-s61slemdd",
       "arrowSubType": "standard",
       "tipo": "Percorrível"
     },
