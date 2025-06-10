@@ -10,6 +10,7 @@
       "text": "Pai",
       "fill": "rgb(241, 196, 15)",
       "customType": "subject",
+      "isCompleted": false,
       "childrenIds": [
         "obj-k67xvyhkg",
         "obj-exybs9arp"
@@ -25,6 +26,7 @@
       "text": "Filho",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": "obj-tk8bsm838"
     },
     {
@@ -37,6 +39,7 @@
       "text": "Neto",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": "obj-tk8bsm838"
     },
     {
@@ -49,6 +52,7 @@
       "text": "Órfão",
       "fill": "rgb(52, 152, 219)",
       "customType": "content",
+      "isCompleted": false,
       "parentId": null
     }
   ],

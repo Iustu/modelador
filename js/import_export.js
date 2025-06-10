@@ -1,4 +1,3 @@
-// Manipula o botão de exportar para JSON.
 document.getElementById("export-button").addEventListener("click", () => {
     const data = {
         boxes: [],
@@ -17,7 +16,8 @@ document.getElementById("export-button").addEventListener("click", () => {
                 angle: obj.angle,
                 text: textObj ? textObj.text : "",
                 fill: obj._objects[0] ? obj._objects[0].fill : 'grey',
-                customType: obj.customType
+                customType: obj.customType,
+                isCompleted: obj.isCompleted
             };
             if (obj.customType === 'subject') {
                 boxData.childrenIds = obj.childrenIds;
@@ -44,7 +44,6 @@ document.getElementById("export-button").addEventListener("click", () => {
     document.body.removeChild(a);
 });
 
-// Manipula o botão de importar de um arquivo JSON.
 document.getElementById("import-button").addEventListener("click", () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -52,22 +51,24 @@ document.getElementById("import-button").addEventListener("click", () => {
     input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const content = await file.text();
         const data = JSON.parse(content);
 
         canvas.clear();
         const idToObjectMap = {};
 
-        // Recria as caixas.
         data.boxes.forEach(boxData => {
-            const rect = new fabric.Rect({ width: 140, height: 60, fill: boxData.fill, rx: 5, ry: 5 });
+            // Define a cor baseada no estado de conclusão
+            const rectFill = boxData.isCompleted ? '#2ecc71' : boxData.fill;
+            const rect = new fabric.Rect({ width: 140, height: 60, fill: rectFill, rx: 5, ry: 5 });
             const text = new fabric.Textbox(boxData.text, { width: 120, fontSize: 16, textAlign: 'center', fill: '#000', originX: 'center', originY: 'center', left: 70, top: 30 });
+            
             const groupOptions = {
                 left: boxData.left, top: boxData.top, scaleX: boxData.scaleX,
                 scaleY: boxData.scaleY, angle: boxData.angle, objectId: boxData.id,
                 type: 'box', hasControls: true, selectable: true,
-                customType: boxData.customType
+                customType: boxData.customType,
+                isCompleted: boxData.isCompleted || false
             };
             if (boxData.customType === 'subject') {
                 groupOptions.childrenIds = boxData.childrenIds || [];
@@ -79,21 +80,19 @@ document.getElementById("import-button").addEventListener("click", () => {
             idToObjectMap[boxData.id] = group;
         });
 
-        // Recria as setas.
         data.arrows.forEach(arrowData => {
             const startObj = idToObjectMap[arrowData.from];
             const endObj = idToObjectMap[arrowData.to];
-            if (!startObj || !endObj) {
-                console.warn("Objeto de seta não encontrado na importação:", arrowData);
-                return;
-            }
+            if (!startObj || !endObj) return;
+
+            // Passa o tipo da seta como PARÂMETRO para a função de criação
             if (arrowData.arrowSubType === 'selfLoop') {
                 window.createSelfLoopArrow(startObj, arrowData.tipo);
             } else {
                 window.createStandardArrow(startObj, endObj, arrowData.tipo);
             }
         });
-        canvas.requestRenderAll();
+        canvas.renderAll();
     };
     input.click();
 });
