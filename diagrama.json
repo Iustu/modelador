@@ -1,0 +1,76 @@
+{
+  "boxes": [
+    {
+      "id": "obj-i2pzix5p9",
+      "left": 108,
+      "top": 100,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Pai",
+      "fill": "rgb(241, 196, 15)",
+      "customType": "subject",
+      "childrenIds": [
+        "obj-yp73z34ky",
+        "obj-hggxv0emq",
+        "obj-yd2hyi7br"
+      ]
+    },
+    {
+      "id": "obj-yp73z34ky",
+      "left": 115,
+      "top": 239,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Filho",
+      "fill": "rgb(52, 152, 219)",
+      "customType": "content",
+      "parentId": "obj-i2pzix5p9"
+    },
+    {
+      "id": "obj-hggxv0emq",
+      "left": 119,
+      "top": 363,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Neto",
+      "fill": "rgb(52, 152, 219)",
+      "customType": "content",
+      "parentId": "obj-i2pzix5p9"
+    },
+    {
+      "id": "obj-yd2hyi7br",
+      "left": 124,
+      "top": 496,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Bisneto",
+      "fill": "rgb(52, 152, 219)",
+      "customType": "content",
+      "parentId": "obj-i2pzix5p9"
+    }
+  ],
+  "arrows": [
+    {
+      "from": "obj-i2pzix5p9",
+      "to": "obj-yp73z34ky",
+      "arrowSubType": "standard",
+      "tipo": "Percorrível"
+    },
+    {
+      "from": "obj-yp73z34ky",
+      "to": "obj-hggxv0emq",
+      "arrowSubType": "standard",
+      "tipo": "Percorrível"
+    },
+    {
+      "from": "obj-hggxv0emq",
+      "to": "obj-yd2hyi7br",
+      "arrowSubType": "standard",
+      "tipo": "Percorrível"
+    }
+  ]
+}
