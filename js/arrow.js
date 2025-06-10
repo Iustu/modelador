@@ -6,7 +6,6 @@ window.arrowStartObject = null;
 document.getElementById('arrow-button').addEventListener('click', () => {
     window.isDrawingArrow = true;
     window.arrowStartObject = null;
-    alert('Clique no objeto de início e depois no objeto de destino para criar uma seta.');
 });
 
 // Define a função que manipula os cliques para criar a seta.
