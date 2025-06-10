@@ -1,27 +1,39 @@
 // Variáveis de estado globais para o modo de desenho.
 window.isDrawingArrow = false;
+window.arrowTypeToDraw = null; // 'Percorrível' ou 'Bloqueado'
 window.arrowStartObject = null;
 
-// Ativa o modo de desenho de seta.
+// Ativa o modo de desenho de seta contínua.
 document.getElementById('arrow-button').addEventListener('click', () => {
     window.isDrawingArrow = true;
+    window.arrowTypeToDraw = 'Percorrível';
+    window.arrowStartObject = null;
+});
+
+// Ativa o modo de desenho de seta tracejada.
+document.getElementById('dashed-arrow-button').addEventListener('click', () => {
+    window.isDrawingArrow = true;
+    window.arrowTypeToDraw = 'Bloqueado';
     window.arrowStartObject = null;
 });
 
 // Define a função que manipula os cliques para criar a seta.
 window.handleMouseDownForArrow = function (e) {
     if (!window.isDrawingArrow || !e.target || e.target.type !== 'box') return;
+
     if (!window.arrowStartObject) {
         window.arrowStartObject = e.target;
     } else {
         const endBox = e.target;
         if (window.arrowStartObject.objectId === endBox.objectId) {
-            window.createSelfLoopArrow(window.arrowStartObject);
+            createSelfLoopArrow(window.arrowStartObject, window.arrowTypeToDraw);
         } else {
-            window.createStandardArrow(window.arrowStartObject, endBox);
+            createStandardArrow(window.arrowStartObject, endBox, window.arrowTypeToDraw);
         }
+        // Desativa o modo de desenho após criar a seta.
         window.isDrawingArrow = false;
         window.arrowStartObject = null;
+        window.arrowTypeToDraw = null;
     }
 };
 
@@ -33,7 +45,7 @@ function updateParentChildRelationship(startObj, endObj) {
             startObj.childrenIds.push(endObj.objectId);
         }
         endObj.parentId = startObj.objectId;
-    } 
+    }
     // Regra: Conteúdo -> Conteúdo (relação transitiva)
     else if (startObj.customType === 'content' && endObj.customType === 'content' && startObj.parentId) {
         const parentSubject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
@@ -46,27 +58,63 @@ function updateParentChildRelationship(startObj, endObj) {
     }
 }
 
-// Disponibiliza a função globalmente.
-window.createStandardArrow = function(startObj, endObj) {
+// Disponibiliza a função globalmente para ser usada por outros módulos.
+window.createStandardArrow = function(startObj, endObj, type) {
     const startPoint = getEdgePoint(startObj, endObj.getCenterPoint());
     const endPoint = getEdgePoint(endObj, startObj.getCenterPoint());
-    const line = new fabric.Line([startPoint.x, startPoint.y, endPoint.x, endPoint.y], { stroke: 'black', strokeWidth: 2, selectable: false, objectCaching: false });
+
+    const lineOptions = { stroke: 'black', strokeWidth: 2, selectable: false, objectCaching: false };
+    if (type === 'Bloqueado') {
+        lineOptions.strokeDashArray = [5, 5];
+    }
+    const line = new fabric.Line([startPoint.x, startPoint.y, endPoint.x, endPoint.y], lineOptions);
+    
     const angle = fabric.util.radiansToDegrees(Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x)) + 90;
     const tri = new fabric.Triangle({ width: 10, height: 15, fill: 'black', left: endPoint.x, top: endPoint.y, angle: angle, originX: 'center', originY: 'center', selectable: false, objectCaching: false });
-    const arrow = new fabric.Group([line, tri], { type: 'arrow', arrowSubType: 'standard', from: startObj.objectId, to: endObj.objectId, selectable: true });
+    
+    const arrow = new fabric.Group([line, tri], {
+        type: 'arrow',
+        arrowSubType: 'standard',
+        from: startObj.objectId,
+        to: endObj.objectId,
+        tipo: type,
+        selectable: true
+    });
+
     canvas.add(arrow).setActiveObject(arrow);
-    updateParentChildRelationship(startObj, endObj);
+    
+    if (type === 'Percorrível') {
+        updateParentChildRelationship(startObj, endObj);
+    }
 }
 
 // Disponibiliza a função globalmente.
-window.createSelfLoopArrow = function(box) {
+window.createSelfLoopArrow = function(box, type) {
     const points = getSelfLoopPoints(box);
-    const pathData = [['M', points.P1.x, points.P1.y], ['L', points.P2.x, points.P2.y], ['L', points.P3.x, points.P3.y], ['L', points.P4.x, points.P4.y]];
-    const path = new fabric.Path(pathData, { stroke: 'black', strokeWidth: 2, fill: null, selectable: false, objectCaching: false });
+
+    const pathOptions = { stroke: 'black', strokeWidth: 2, fill: null, selectable: false, objectCaching: false };
+    if (type === 'Bloqueado') {
+        pathOptions.strokeDashArray = [5, 5];
+    }
+    
+    const path = new fabric.Path([['M', points.P1.x, points.P1.y], ['L', points.P2.x, points.P2.y], ['L', points.P3.x, points.P3.y], ['L', points.P4.x, points.P4.y]], pathOptions);
     const arrowheadAngle = fabric.util.radiansToDegrees(Math.atan2(points.P4.y - points.P3.y, points.P4.x - points.P3.x)) + 90;
     const arrowhead = new fabric.Triangle({ width: 10, height: 15, fill: 'black', left: points.P4.x, top: points.P4.y, angle: arrowheadAngle, originX: 'center', originY: 'center', selectable: false, objectCaching: false });
-    const arrowGroup = new fabric.Group([path, arrowhead], { type: 'arrow', arrowSubType: 'selfLoop', from: box.objectId, to: box.objectId, selectable: true });
+    
+    const arrowGroup = new fabric.Group([path, arrowhead], {
+        type: 'arrow',
+        arrowSubType: 'selfLoop',
+        from: box.objectId,
+        to: box.objectId,
+        tipo: type,
+        selectable: true
+    });
+
     canvas.add(arrowGroup).setActiveObject(arrowGroup);
+
+    if (type === 'Percorrível') {
+        updateParentChildRelationship(box, box);
+    }
 }
 
 // Disponibiliza a função globalmente.
@@ -77,6 +125,7 @@ window.updateArrowsForObject = function(movedObj) {
             const startBox = canvas.getObjects().find(o => o.objectId === obj.from);
             const endBox = canvas.getObjects().find(o => o.objectId === obj.to);
             if (!startBox || !endBox) return;
+
             if (obj.arrowSubType === 'selfLoop') {
                 const pathObj = obj.item(0), triangleObj = obj.item(1);
                 const points = getSelfLoopPoints(startBox);
@@ -85,7 +134,7 @@ window.updateArrowsForObject = function(movedObj) {
                     const angle = fabric.util.radiansToDegrees(Math.atan2(points.P4.y - points.P3.y, points.P4.x - points.P3.x)) + 90;
                     triangleObj.set({ left: points.P4.x, top: points.P4.y, angle: angle });
                 }
-            } else {
+            } else { // 'standard'
                 const line = obj.item(0), tri = obj.item(1);
                 const startPoint = getEdgePoint(startBox, endBox.getCenterPoint());
                 const endPoint = getEdgePoint(endBox, startBox.getCenterPoint());

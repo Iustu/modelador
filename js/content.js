@@ -1,4 +1,4 @@
-// Habilita o drag & drop das formas da sidebar.
+// Habilita o drag & drop das formas na sidebar.
 document.querySelectorAll('.shape[draggable="true"]').forEach(shape => {
     shape.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('type', 'rect');
@@ -10,7 +10,7 @@ document.querySelectorAll('.shape[draggable="true"]').forEach(shape => {
 window.handleDropOnCanvas = function(e) {
     e.preventDefault();
     if (e.dataTransfer.getData('type') !== 'rect') return;
-    
+
     const userText = prompt("Digite o texto para o retângulo:", "");
     if (userText === null || userText.trim() === "") return;
 
@@ -22,16 +22,21 @@ window.handleDropOnCanvas = function(e) {
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
 
-    const rectWidth = 140, rectHeight = 60;
+    const rectWidth = 140;
+    const rectHeight = 60;
     const rect = new fabric.Rect({ width: rectWidth, height: rectHeight, fill: fillColor, rx: 5, ry: 5 });
     const text = new fabric.Textbox(userText, { width: rectWidth - 20, fontSize: 16, textAlign: 'center', fill: '#000', originX: 'center', originY: 'center', left: rectWidth / 2, top: rectHeight / 2 });
 
     const groupOptions = {
-        left: x, top: y, objectId: generateId(), type: 'box',
-        hasControls: true, selectable: true
+        left: x,
+        top: y,
+        objectId: generateId(),
+        type: 'box',
+        hasControls: true,
+        selectable: true
     };
 
-    // Define o tipo do objeto com base na cor.
+    // Define o tipo do objeto ('subject' ou 'content') com base na cor.
     if (colorKey === 'yellow') {
         groupOptions.customType = 'subject';
         groupOptions.childrenIds = [];
@@ -48,8 +53,10 @@ window.handleDropOnCanvas = function(e) {
 document.getElementById('edit-text-button').addEventListener('click', () => {
     const active = canvas.getActiveObject();
     if (!active || active.type !== 'box') return alert("Nenhum retângulo selecionado.");
+
     const textObj = active._objects.find(o => o instanceof fabric.Textbox);
     if (!textObj) return alert("O objeto não contém texto.");
+
     const newText = prompt("Editar texto:", textObj.text);
     if (newText !== null) {
         textObj.set('text', newText);

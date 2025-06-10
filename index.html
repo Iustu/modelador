@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Learning Curve™</title>
+    <title>Modelador de Diagramas</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 </head>
@@ -19,7 +19,8 @@
                 </div>
                 <div class="sidebar-group">
                     <h3>Ferramentas</h3>
-                    <button id="arrow-button" title="Clique para desenhar. Depois, clique no objeto de início e no de destino.">➤ Inserir Seta</button>
+                    <button id="arrow-button" title="Ative para desenhar. Depois, clique no objeto de início e no de destino.">➤ Seta Percorrível</button>
+                    <button id="dashed-arrow-button" title="Ative para desenhar uma seta tracejada. Depois, clique no objeto de início e no de destino.">⤏ Seta Bloqueada</button>
                     <button id="edit-text-button">✎ Editar Texto</button>
                     <button id="delete-button">🗑️ Excluir Item</button>
                 </div>
@@ -34,10 +35,10 @@
             </div>
         </main>
     </div>
+    
     <script src="js/utils.js"></script>
-    <script src="js/canvas.js"></script>
-    <script src="js/content.js"></script>
     <script src="js/arrow.js"></script>
+    <script src="js/content.js"></script>
     <script src="js/import_export.js"></script>
-</body>
+    <script src="js/canvas.js"></script> </body>
 </html>
