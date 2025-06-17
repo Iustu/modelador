@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        window.updateAllHierarchyNumbers();
         canvas.renderAll();
     }
 });

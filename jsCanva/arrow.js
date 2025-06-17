@@ -37,7 +37,7 @@ window.handleMouseDownForArrow = function (e) {
     }
 };
 
-// ATUALIZADO: Atualiza a relação de parentesco chamando a reconstrução da árvore.
+//Atualiza a relação de parentesco chamando a reconstrução da árvore.
 function updateParentChildRelationship(startObj, endObj) {
     // A lógica de parentesco só se aplica a setas que terminam em um 'content'.
     if (endObj.customType !== 'content') return;
@@ -52,9 +52,10 @@ function updateParentChildRelationship(startObj, endObj) {
 
     // Se um "Assunto" foi encontrado, reconstruímos toda a sua lista de filhos.
     if (subject && typeof window.rebuildChildrenList === 'function') {
-        // Usamos um pequeno timeout para garantir que a seta já foi renderizada no canvas
-        // antes de percorrer a árvore de objetos para a reconstrução.
-        setTimeout(() => window.rebuildChildrenList(subject), 0);
+        setTimeout(() => 
+            {window.rebuildChildrenList(subject);
+            window.updateAllHierarchyNumbers();}
+        ,0) //atualiza hierarquia
     }
 }
 

@@ -1,0 +1,42 @@
+{
+  "boxes": [
+    {
+      "id": "obj-1umxkg0ss",
+      "left": 65,
+      "top": 99,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Teste",
+      "fill": "#f1c40f",
+      "customType": "subject",
+      "hierarchyNumber": "1",
+      "childrenIds": [
+        "obj-fa14s1lvf"
+      ]
+    },
+    {
+      "id": "obj-fa14s1lvf",
+      "left": 343,
+      "top": 106,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Introdução à Lógica e Algoritmos",
+      "fill": "#3498db",
+      "customType": "content",
+      "hierarchyNumber": "1.1",
+      "parentId": "obj-1umxkg0ss",
+      "contentId": "alg-01",
+      "fullText": "Um algoritmo é uma sequência finita de passos lógicos para resolver um problema. Em programação, usamos linguagens como C para escrever esses passos de forma que o computador possa entendê-los. A lógica de programação é a base para organizar esses passos de maneira eficiente e correta."
+    }
+  ],
+  "arrows": [
+    {
+      "from": "obj-1umxkg0ss",
+      "to": "obj-fa14s1lvf",
+      "arrowSubType": "standard",
+      "tipo": "Percorrível"
+    }
+  ]
+}
