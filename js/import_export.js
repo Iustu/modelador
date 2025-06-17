@@ -17,7 +17,6 @@ document.getElementById("export-button").addEventListener("click", () => {
                 text: textObj ? textObj.text : "",
                 fill: obj._objects[0] ? obj._objects[0].fill : 'grey',
                 customType: obj.customType,
-                isCompleted: obj.isCompleted // <-- ADICIONADO: Salva o estado
             };
             if (obj.customType === 'subject') {
                 boxData.childrenIds = obj.childrenIds;
@@ -58,8 +57,7 @@ document.getElementById("import-button").addEventListener("click", () => {
         const idToObjectMap = {};
 
         data.boxes.forEach(boxData => {
-            // ATUALIZADO: Define a cor baseada no estado de conclusão importado.
-            const rectFill = boxData.isCompleted ? '#2ecc71' : boxData.fill;
+            const rectFill = boxData.fill;
             const rect = new fabric.Rect({ width: 140, height: 60, fill: rectFill, rx: 5, ry: 5 });
             const text = new fabric.Textbox(boxData.text, { width: 120, fontSize: 16, textAlign: 'center', fill: '#000', originX: 'center', originY: 'center', left: 70, top: 30 });
             
@@ -68,7 +66,6 @@ document.getElementById("import-button").addEventListener("click", () => {
                 scaleY: boxData.scaleY, angle: boxData.angle, objectId: boxData.id,
                 type: 'box', hasControls: true, selectable: true,
                 customType: boxData.customType,
-                isCompleted: boxData.isCompleted || false // <-- ADICIONADO: Carrega o estado
             };
             if (boxData.customType === 'subject') {
                 groupOptions.childrenIds = boxData.childrenIds || [];

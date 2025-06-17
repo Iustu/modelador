@@ -29,7 +29,6 @@ window.handleDropOnCanvas = function(e) {
     const groupOptions = {
         left: x, top: y, objectId: generateId(), type: 'box',
         hasControls: true, selectable: true,
-        isCompleted: false // <-- ADICIONADO: Estado inicial de conclusão
     };
 
     if (colorKey === 'yellow') {

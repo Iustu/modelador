@@ -124,29 +124,3 @@ body {
 .canvas-container { 
     box-shadow: 0 0 15px rgba(0,0,0,0.07); 
 }
-
-/* Estilo para o botão de concluir tarefa */
-#complete-button {
-    position: absolute;
-    display: none; /* Começa escondido */
-    width: 30px;
-    height: 30px;
-    background-color: #2ecc71; /* Verde */
-    color: white;
-    border: 2px solid white;
-    border-radius: 50%; /* Deixa o botão redondo */
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 100; /* Garante que fique sobre os outros elementos */
-    padding: 0;
-    line-height: 26px; /* Ajusta o alinhamento vertical do ✔ */
-    text-align: center;
-    transition: transform 0.2s, opacity 0.2s;
-}
-
-#complete-button:hover {
-    background-color: #27ae60; /* Verde mais escuro */
-    transform: scale(1.1);
-}
