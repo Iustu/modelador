@@ -44,7 +44,6 @@ document.getElementById("import-button").addEventListener("click", () => {
         const idToObjectMap = {};
 
         data.boxes.forEach(boxData => {
-            // --- LÓGICA DE CRIAÇÃO CORRIGIDA (IGUAL A DE CONTENT.JS) ---
             const rectWidth = 140;
             const rectHeight = 60;
 
