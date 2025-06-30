@@ -1,0 +1,64 @@
+{
+  "boxes": [
+    {
+      "id": "obj-wrpxm04h6",
+      "left": 102,
+      "top": 95,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "sdfs",
+      "fill": "#f1c40f",
+      "customType": "subject",
+      "hierarchyNumber": "1",
+      "childrenIds": [
+        "obj-herf63iep",
+        "obj-ic4q58sfu"
+      ]
+    },
+    {
+      "id": "obj-herf63iep",
+      "left": 257,
+      "top": 298,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Introdução à Lógica e Algoritmos",
+      "fill": "#3498db",
+      "customType": "content",
+      "hierarchyNumber": "1.1",
+      "parentId": "obj-wrpxm04h6",
+      "contentId": "alg-01",
+      "fullText": "Um algoritmo é uma sequência finita de passos lógicos para resolver um problema. Em programação, usamos linguagens como C para escrever esses passos de forma que o computador possa entendê-los. A lógica de programação é a base para organizar esses passos de maneira eficiente e correta."
+    },
+    {
+      "id": "obj-ic4q58sfu",
+      "left": 287,
+      "top": 566,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Estruturas de Repetição (Loops)",
+      "fill": "#3498db",
+      "customType": "content",
+      "hierarchyNumber": "1.2",
+      "parentId": "obj-wrpxm04h6",
+      "contentId": "alg-04",
+      "fullText": "Loops são usados para repetir um bloco de código várias vezes. O loop 'for' é ideal quando sabemos o número de repetições. O loop 'while' (enquanto) continua executando enquanto uma condição for verdadeira. São fundamentais para processar listas de dados ou executar tarefas repetitivas."
+    }
+  ],
+  "arrows": [
+    {
+      "from": "obj-wrpxm04h6",
+      "to": "obj-herf63iep",
+      "arrowSubType": "standard",
+      "tipo": "tracejada"
+    },
+    {
+      "from": "obj-herf63iep",
+      "to": "obj-ic4q58sfu",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    }
+  ]
+}

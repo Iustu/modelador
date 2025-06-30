@@ -1,78 +1,79 @@
-// Variáveis de estado globais para o modo de desenho.
+/* ARQUIVO: jsCanva/arrow.js */
+
 window.isDrawingArrow = false;
-window.arrowTypeToDraw = null; 
 window.arrowStartObject = null;
 
-// Ativa o modo de desenho de seta.
-document.getElementById('arrow-button').addEventListener('click', () => {
-    window.isDrawingArrow = true;
-    window.arrowTypeToDraw = 'Percorrível';
+function exitArrowDrawingMode() {
+    window.isDrawingArrow = false;
     window.arrowStartObject = null;
-});
+    canvas.renderAll();
+}
 
-// Ativa o modo de desenho de seta tracejada.
-document.getElementById('dashed-arrow-button').addEventListener('click', () => {
+function enterArrowDrawingMode() {
+    if(window.isDrawingArrow) {
+        exitArrowDrawingMode();
+    }
     window.isDrawingArrow = true;
-    window.arrowTypeToDraw = 'Bloqueado';
     window.arrowStartObject = null;
-});
+}
 
+document.getElementById('arrow-button').addEventListener('click', enterArrowDrawingMode);
 
-// Define a função que manipula os cliques para criar a seta.
 window.handleMouseDownForArrow = function (e) {
-    if (!window.isDrawingArrow || !e.target || e.target.type !== 'box') return;
+    if (!window.isDrawingArrow) return;
 
-    if (!window.arrowStartObject) {
-        window.arrowStartObject = e.target;
-    } else {
-        const endBox = e.target;
-        // Apenas cria a seta se os objetos forem diferentes
-        if (window.arrowStartObject.objectId !== endBox.objectId) {
-            window.createStandardArrow(window.arrowStartObject, endBox, window.arrowTypeToDraw);
+    if (e.target && e.target.type === 'box') {
+        if (!window.arrowStartObject) {
+            window.arrowStartObject = e.target;
+        } else {
+            const endBox = e.target;
+            if (window.arrowStartObject.objectId !== endBox.objectId) {
+                const startObj = window.arrowStartObject;
+                const startType = startObj.customType;
+                const endType = endBox.customType;
+                let arrowType;
+
+                if (startType === 'subject' && endType === 'content') {
+                    arrowType = 'tracejada';
+                } else {
+                    arrowType = 'continua';
+                }
+
+                window.createStandardArrow(startObj, endBox, arrowType);
+            }
+            exitArrowDrawingMode();
         }
-        // Reseta o estado do desenho
-        window.isDrawingArrow = false;
-        window.arrowStartObject = null;
-        window.arrowTypeToDraw = null;
+    } else {
+        exitArrowDrawingMode();
     }
 };
 
-//Atualiza a relação de parentesco chamando a reconstrução da árvore.
 function updateParentChildRelationship(startObj, endObj) {
-    // A lógica de parentesco só se aplica a setas que terminam em um 'content'.
     if (endObj.customType !== 'content') return;
-
     let subject = null;
-    // Encontra o "Assunto" raiz da cadeia.
     if (startObj.customType === 'subject') {
         subject = startObj;
-    } else if (startObj.parentId) { // Se o objeto inicial já pertence a um assunto.
+    } else if (startObj.parentId) {
         subject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
     }
-
-    // Se um "Assunto" foi encontrado, reconstruímos toda a sua lista de filhos.
     if (subject && typeof window.rebuildChildrenList === 'function') {
-        setTimeout(() => 
-            {window.rebuildChildrenList(subject);
-            window.updateAllHierarchyNumbers();}
-        ,0) //atualiza hierarquia
+        setTimeout(() => {
+            window.rebuildChildrenList(subject);
+            window.updateAllHierarchyNumbers();
+        }, 0);
     }
 }
 
-// A função agora recebe 'tipo' como parâmetro.
 window.createStandardArrow = function(startObj, endObj, tipo) {
     const startPoint = getEdgePoint(startObj, endObj.getCenterPoint());
     const endPoint = getEdgePoint(endObj, startObj.getCenterPoint());
-
     const lineOptions = { stroke: 'black', strokeWidth: 2, selectable: false, objectCaching: false };
-    if (tipo === 'Bloqueado') {
+    if (tipo === 'tracejada') {
         lineOptions.strokeDashArray = [5, 5];
     }
     const line = new fabric.Line([startPoint.x, startPoint.y, endPoint.x, endPoint.y], lineOptions);
-    
     const angle = fabric.util.radiansToDegrees(Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x)) + 90;
     const tri = new fabric.Triangle({ width: 10, height: 15, fill: 'black', left: endPoint.x, top: endPoint.y, angle: angle, originX: 'center', originY: 'center', selectable: false, objectCaching: false });
-    
     const arrow = new fabric.Group([line, tri], {
         type: 'arrow',
         arrowSubType: 'standard',
@@ -87,12 +88,9 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
 
     canvas.add(arrow).setActiveObject(arrow);
     
-    if (tipo === 'Percorrível') {
-        updateParentChildRelationship(startObj, endObj);
-    }
-}
+    updateParentChildRelationship(startObj, endObj);
+};
 
-// Disponibiliza a função globalmente.
 window.updateArrowsForObject = function(movedObj) {
     if (!movedObj || movedObj.type !== 'box') return;
     canvas.getObjects().forEach(obj => {
@@ -100,16 +98,12 @@ window.updateArrowsForObject = function(movedObj) {
             const startBox = canvas.getObjects().find(o => o.objectId === obj.from);
             const endBox = canvas.getObjects().find(o => o.objectId === obj.to);
             if (!startBox || !endBox) return;
-
-            // A lógica para 'selfLoop' foi removida.
-            // Apenas a lógica para setas padrão ('standard') permanece.
             const line = obj.item(0), tri = obj.item(1);
             const startPoint = getEdgePoint(startBox, endBox.getCenterPoint());
             const endPoint = getEdgePoint(endBox, startBox.getCenterPoint());
             line.set({ 'x1': startPoint.x, 'y1': startPoint.y, 'x2': endPoint.x, 'y2': endPoint.y });
             const angle = fabric.util.radiansToDegrees(Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x)) + 90;
             tri.set({ left: endPoint.x, top: endPoint.y, angle: angle });
-            
             obj._calcBounds();
             obj._updateObjectsCoords();
             obj.setCoords();
@@ -118,7 +112,6 @@ window.updateArrowsForObject = function(movedObj) {
     canvas.requestRenderAll();
 }
 
-// Calcula o ponto de conexão na borda de um retângulo.
 function getEdgePoint(rectGroup, targetPoint) {
     const center = rectGroup.getCenterPoint();
     const w = (rectGroup.width * rectGroup.scaleX) / 2, h = (rectGroup.height * rectGroup.scaleY) / 2;

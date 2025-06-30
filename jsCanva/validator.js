@@ -7,13 +7,16 @@ function validateDiagram() {
     const objects = canvas.getObjects();
     const boxes = objects.filter(o => o.type === 'box');
     const arrows = objects.filter(o => o.type === 'arrow');
-    const errors = [];
+    let errors = [];
 
-    // Mapeia IDs para caixas para facilitar a busca.
     const boxMap = new Map(boxes.map(b => [b.objectId, b]));
 
     errors.push(...checkOrphanedBoxes(boxes, arrows));
     errors.push(...checkConnectionRules(arrows, boxMap));
+    errors.push(...checkSubjectArrowRules(boxes, arrows));
+    errors.push(...checkContentInputRules(boxes, arrows, boxMap));
+    errors.push(...checkContentOutputRules(boxes, arrows)); // Nova validação
+    errors.push(...checkOrphanedChains(boxes, arrows, boxMap));
     errors.push(...checkDuplicateConnections(arrows, boxMap));
 
     if (errors.length === 0) {
@@ -42,7 +45,7 @@ function checkOrphanedBoxes(boxes, arrows) {
     return errors;
 }
 
-// REGRAS 2, 3 e 4: Verifica as regras de conexão entre tipos de caixas.
+// REGRA 2: Verifica as regras de conexão entre tipos de caixas.
 function checkConnectionRules(arrows, boxMap) {
     const errors = [];
     arrows.forEach(arrow => {
@@ -56,32 +59,108 @@ function checkConnectionRules(arrows, boxMap) {
 
         const startText = startBox._objects.find(o => o.type === 'textbox').text;
         const endText = endBox._objects.find(o => o.type === 'textbox').text;
-
         const startType = startBox.customType;
         const endType = endBox.customType;
-        const arrowType = arrow.tipo;
 
-        // Assunto só pode se ligar a Assunto com seta tracejada ('Bloqueado')
-        if (startType === 'subject' && endType === 'subject' && arrowType !== 'Bloqueado') {
-            errors.push(`Conexão inválida: Assuntos ("${startText}" e "${endText}") só podem ser ligados por setas tracejadas.`);
-        }
-        // Assunto só pode se ligar a Conteúdo com seta contínua ('Percorrível')
-        if (startType === 'subject' && endType === 'content' && arrowType !== 'Percorrível') {
-            errors.push(`Conexão inválida: Um Assunto ("${startText}") só pode se ligar a um Conteúdo ("${endText}") com seta contínua.`);
-        }
-        // Conteúdo só pode se ligar a Conteúdo com seta contínua ('Percorrível')
-        if (startType === 'content' && endType === 'content' && arrowType !== 'Percorrível') {
-            errors.push(`Conexão inválida: Conteúdos ("${startText}" e "${endText}") só podem ser ligados por setas contínuas.`);
-        }
-        // Regra adicional: Conteúdo não pode se ligar a um Assunto com seta contínua, pois quebra a hierarquia.
-        if (startType === 'content' && endType === 'subject' && arrowType === 'Percorrível') {
-            errors.push(`Hierarquia inválida: Um Conteúdo ("${startText}") não pode ser pai de um Assunto ("${endText}").`);
+        if (startType === 'content' && endType === 'subject') {
+            errors.push(`Hierarquia inválida: Um Conteúdo ("${startText}") não pode se conectar a um Assunto ("${endText}").`);
         }
     });
     return errors;
 }
 
-// REGRA 5: Verifica se existem setas duplicadas entre as mesmas duas caixas.
+// REGRA 3: Verifica se um "Assunto" tem mais de uma seta tracejada de saída.
+function checkSubjectArrowRules(boxes, arrows) {
+    const errors = [];
+    const subjects = boxes.filter(b => b.customType === 'subject');
+
+    subjects.forEach(subject => {
+        const outgoingDashedArrows = arrows.filter(a => a.from === subject.objectId && a.tipo === 'tracejada');
+        
+        if (outgoingDashedArrows.length > 1) {
+            const subjectText = subject._objects.find(o => o.type === 'textbox').text;
+            errors.push(`Regra violada: O Assunto "${subjectText}" não pode ter mais de uma seta tracejada (início de cadeia).`);
+        }
+    });
+
+    return errors;
+}
+
+// REGRA 4: Um conteúdo não pode ter mais de uma entrada vinda de outro conteúdo.
+function checkContentInputRules(boxes, arrows, boxMap) {
+    const errors = [];
+    const contents = boxes.filter(b => b.customType === 'content');
+
+    contents.forEach(content => {
+        const incomingFromContent = arrows.filter(arrow => {
+            if (arrow.to !== content.objectId) return false;
+            const fromBox = boxMap.get(arrow.from);
+            return fromBox && fromBox.customType === 'content';
+        });
+
+        if (incomingFromContent.length > 1) {
+            const contentText = content._objects.find(o => o.type === 'textbox').text;
+            errors.push(`Regra violada: O Conteúdo "${contentText}" recebe mais de uma seta de outro Conteúdo, o que não é permitido.`);
+        }
+    });
+    return errors;
+}
+
+// REGRA 5: Um conteúdo não pode ter mais de uma seta de saída.
+function checkContentOutputRules(boxes, arrows) {
+    const errors = [];
+    const contents = boxes.filter(b => b.customType === 'content');
+
+    contents.forEach(content => {
+        const outgoingArrows = arrows.filter(arrow => arrow.from === content.objectId);
+
+        if (outgoingArrows.length > 1) {
+            const contentText = content._objects.find(o => o.type === 'textbox').text;
+            errors.push(`Regra violada: O Conteúdo "${contentText}" não pode ter mais de uma seta de saída.`);
+        }
+    });
+
+    return errors;
+}
+
+// REGRA 6: Um conteúdo deve pertencer a uma cadeia que se origina de um Assunto.
+function checkOrphanedChains(boxes, arrows, boxMap) {
+    const errors = [];
+    const subjects = boxes.filter(b => b.customType === 'subject');
+    const allContent = boxes.filter(b => b.customType === 'content');
+    
+    if (allContent.length === 0) return [];
+
+    const reachableContentIds = new Set();
+    const q = [...subjects];
+    const visited = new Set(subjects.map(s => s.objectId));
+
+    while (q.length > 0) {
+        const currentBox = q.shift();
+        const outgoingArrows = arrows.filter(a => a.from === currentBox.objectId);
+
+        for (const arrow of outgoingArrows) {
+            const childBox = boxMap.get(arrow.to);
+            if (childBox && !visited.has(childBox.objectId)) {
+                visited.add(childBox.objectId);
+                q.push(childBox);
+                if (childBox.customType === 'content') {
+                    reachableContentIds.add(childBox.objectId);
+                }
+            }
+        }
+    }
+
+    allContent.forEach(content => {
+        if (!reachableContentIds.has(content.objectId)) {
+            const contentText = content._objects.find(o => o.type === 'textbox').text;
+            errors.push(`Conteúdo órfão: O Conteúdo "${contentText}" não pertence a uma trilha iniciada por um Assunto.`);
+        }
+    });
+    return errors;
+}
+
+// REGRA 7: Verifica se existem setas duplicadas.
 function checkDuplicateConnections(arrows, boxMap) {
     const errors = [];
     const existingConnections = new Set();

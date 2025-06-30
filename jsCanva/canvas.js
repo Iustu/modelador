@@ -5,28 +5,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const debouncedResize = debounce(resizeCanvas, 150);
     window.addEventListener('resize', debouncedResize);
     
-    // Configuração central de eventos do canvas.
     canvas.upperCanvasEl.addEventListener('dragover', e => e.preventDefault());
     canvas.upperCanvasEl.addEventListener('drop', window.handleDropOnCanvas);
     canvas.on('mouse:down', window.handleMouseDownForArrow);
     canvas.on('object:modified', e => {
         if (e.target && e.target.type === 'box') {
             window.updateArrowsForObject(e.target);
+            window.updateAllHierarchyNumbers(); // Garante que a hierarquia é recalculada ao mover.
         }
     });
 
-    // ATUALIZADO: Eventos de exclusão agora chamam handleDelete sem argumentos.
     document.getElementById('delete-button').addEventListener('click', () => {
         handleDelete();
     });
     document.addEventListener('keydown', e => {
         if (e.key === 'Delete') {
-            e.preventDefault(); // Impede ações padrão do navegador.
+            e.preventDefault();
             handleDelete();
         }
     });
 
-    // Otimiza a frequência de execução de uma função.
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -36,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     };
 
-    // Ajusta as dimensões do canvas com base no seu contêiner.
     function resizeCanvas() {
         const width = canvasWrapper.clientWidth;
         const height = canvasWrapper.clientHeight;
@@ -44,10 +41,8 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas.renderAll();
     }
 
-    // Reconstrói a lista de filhos de um Assunto a partir do zero.
     function rebuildChildrenList(subject) {
         if (!subject || subject.customType !== 'subject') return;
-
         const allObjects = canvas.getObjects();
         const oldChildrenIds = new Set(subject.childrenIds);
         
@@ -59,12 +54,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const current = q.shift();
             
             const outgoingArrows = allObjects.filter(o => 
-                o.type === 'arrow' && o.tipo === 'Percorrível' && o.from === current.objectId
+                o.type === 'arrow' && (o.tipo === 'continua' || o.tipo === 'tracejada') && o.from === current.objectId
             );
 
             for (const arrow of outgoingArrows) {
                 const childObj = allObjects.find(o => o.objectId === arrow.to);
-
                 if (childObj && childObj.customType === 'content' && !visited.has(childObj.objectId)) {
                     visited.add(childObj.objectId);
                     subject.childrenIds.push(childObj.objectId);
@@ -82,31 +76,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
-        
-        console.log(`Árvore do Assunto '${subject.text || subject.objectId}' reconstruída. Filhos:`, subject.childrenIds);
     }
-    
     window.rebuildChildrenList = rebuildChildrenList;
     
-    // ATUALIZADO: Lógica de exclusão que suporta múltiplos itens com confirmação.
     function handleDelete() {
         const activeSelection = canvas.getActiveObject();
         if (!activeSelection) {
             alert("Nenhum item selecionado para excluir.");
             return;
         }
-
         const objectsInSelection = activeSelection.type === 'activeSelection'
             ? activeSelection.getObjects()
             : [activeSelection];
-
         if (objectsInSelection.length > 1) {
-            const confirmed = confirm(`Você tem certeza que deseja excluir os ${objectsInSelection.length} itens selecionados?`);
-            if (!confirmed) {
+            if (!confirm(`Você tem certeza que deseja excluir os ${objectsInSelection.length} itens selecionados?`)) {
                 return;
             }
         }
-
         const subjectsToRevalidate = new Set();
         const allObjectsToRemove = new Set(objectsInSelection);
 
@@ -134,14 +120,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
-
             if (parentSubject) {
                 subjectsToRevalidate.add(parentSubject);
             }
         });
 
         allObjectsToRemove.forEach(obj => canvas.remove(obj));
-        
         canvas.discardActiveObject();
 
         subjectsToRevalidate.forEach(subject => {

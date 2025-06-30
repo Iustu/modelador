@@ -46,18 +46,15 @@ document.getElementById("import-button").addEventListener("click", () => {
         data.boxes.forEach(boxData => {
             const rectWidth = 140;
             const rectHeight = 60;
-
             const rect = new fabric.Rect({
                 width: rectWidth, height: rectHeight,
                 fill: boxData.fill, rx: 5, ry: 5,
                 originX: 'center', originY: 'center'
             });
-
             const text = new fabric.Textbox(boxData.text, {
                 width: 120, fontSize: 16, textAlign: 'center',
                 fill: '#000', originX: 'center', originY: 'center'
             });
-
             const numberText = new fabric.Text(boxData.hierarchyNumber || '', {
                 fontSize: 14, fontWeight: 'bold',
                 fill: 'rgba(0,0,0,0.4)',
@@ -66,7 +63,6 @@ document.getElementById("import-button").addEventListener("click", () => {
                 left: -(rectWidth / 2) + 5,
                 top: -(rectHeight / 2) + 5
             });
-
             const groupOptions = {
                 left: boxData.left, top: boxData.top, scaleX: boxData.scaleX, scaleY: boxData.scaleY,
                 angle: boxData.angle, objectId: boxData.id, type: 'box', hasControls: true, selectable: true,
@@ -95,7 +91,6 @@ document.getElementById("import-button").addEventListener("click", () => {
             else { window.createStandardArrow(startObj, endObj, arrowData.tipo); }
         });
         
-        // Recalcula tudo após importar para garantir consistência
         setTimeout(() => {
             canvas.getObjects().filter(o => o.type === 'box' && o.customType === 'subject').forEach(s => {
                 if(window.rebuildChildrenList) window.rebuildChildrenList(s);
