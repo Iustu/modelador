@@ -8,10 +8,13 @@ document.addEventListener('DOMContentLoaded', function () {
     canvas.upperCanvasEl.addEventListener('dragover', e => e.preventDefault());
     canvas.upperCanvasEl.addEventListener('drop', window.handleDropOnCanvas);
     canvas.on('mouse:down', window.handleMouseDownForArrow);
+
+    // CORREÇÃO APLICADA AQUI
     canvas.on('object:modified', e => {
-        if (e.target && e.target.type === 'box') {
+        // A condição agora inclui o 'type: node' para que a seta siga os nós de Início e Fim.
+        if (e.target && (e.target.type === 'box' || e.target.type === 'node')) {
             window.updateArrowsForObject(e.target);
-            window.updateAllHierarchyNumbers(); // Garante que a hierarquia é recalculada ao mover.
+            window.updateAllHierarchyNumbers();
         }
     });
 
@@ -24,6 +27,17 @@ document.addEventListener('DOMContentLoaded', function () {
             handleDelete();
         }
     });
+
+    // Listener para cancelar o modo de seta ao clicar em outros botões da sidebar.
+    document.querySelector('.sidebar').addEventListener('click', function(e) {
+        const targetIsButton = e.target.tagName === 'BUTTON' || e.target.closest('button');
+        if (targetIsButton && e.target.closest('button').id !== 'arrow-button') {
+            if (window.isDrawingArrow && typeof window.exitArrowDrawingMode === 'function') {
+                window.exitArrowDrawingMode();
+            }
+        }
+    });
+
 
     function debounce(func, wait) {
         let timeout;
@@ -98,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         objectsInSelection.forEach(selectedObj => {
             let parentSubject = null;
-            if (selectedObj.type === 'box') {
+            if (selectedObj.type === 'box' || selectedObj.type === 'node') {
                 if (selectedObj.customType === 'subject') {
                     parentSubject = selectedObj;
                 } else if (selectedObj.parentId) {

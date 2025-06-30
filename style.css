@@ -197,3 +197,47 @@ body {
     padding: 0 0 10px 0;
     font-weight: bold;
 }
+
+/* ESTILOS PARA AS FORMAS DE INÍCIO E FIM NA SIDEBAR */
+.shape.node-shape {
+    background-color: #f8f9fa;
+    border: 1px dashed #6c757d;
+    color: #212529;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Regra para o círculo externo do nó de Início */
+.start-node-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px dashed black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Regra para o círculo interno preto do nó de Início */
+.start-node-icon-inner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+/* A regra para o nó de Fim permanece a mesma */
+.end-node-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.sidebar button.active {
+    background-color: #2980b9; /* Um azul mais escuro para indicar o estado ativo */
+    color: #ffffff;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}

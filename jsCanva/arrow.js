@@ -1,11 +1,10 @@
-/* ARQUIVO: jsCanva/arrow.js */
-
 window.isDrawingArrow = false;
 window.arrowStartObject = null;
 
 function exitArrowDrawingMode() {
     window.isDrawingArrow = false;
     window.arrowStartObject = null;
+    document.getElementById('arrow-button').classList.remove('active');
     canvas.renderAll();
 }
 
@@ -15,14 +14,18 @@ function enterArrowDrawingMode() {
     }
     window.isDrawingArrow = true;
     window.arrowStartObject = null;
+    document.getElementById('arrow-button').classList.add('active');
 }
+
+window.exitArrowDrawingMode = exitArrowDrawingMode;
 
 document.getElementById('arrow-button').addEventListener('click', enterArrowDrawingMode);
 
 window.handleMouseDownForArrow = function (e) {
     if (!window.isDrawingArrow) return;
 
-    if (e.target && e.target.type === 'box') {
+    // CORREÇÃO: Permite que a criação de setas se inicie a partir de 'box' (Assunto/Conteúdo) ou 'node' (Início/Fim).
+    if (e.target && (e.target.type === 'box' || e.target.type === 'node')) {
         if (!window.arrowStartObject) {
             window.arrowStartObject = e.target;
         } else {
@@ -92,7 +95,7 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
 };
 
 window.updateArrowsForObject = function(movedObj) {
-    if (!movedObj || movedObj.type !== 'box') return;
+    if (!movedObj || (movedObj.type !== 'box' && movedObj.type !== 'node')) return;
     canvas.getObjects().forEach(obj => {
         if (obj.type === 'arrow' && (obj.from === movedObj.objectId || obj.to === movedObj.objectId)) {
             const startBox = canvas.getObjects().find(o => o.objectId === obj.from);
