@@ -37,13 +37,23 @@
     </div>
 
     <div id="content-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span id="modal-close-button" class="modal-close-button">&times;</span>
-            <h2>Selecione um Conteúdo</h2>
+    <div class="modal-content">
+        <span id="modal-close-button" class="modal-close-button">&times;</span>
+        
+        <div id="documentation-view">
+            <h2>Selecione uma Documentação</h2>
+            <ul id="documentation-list">
+                </ul>
+        </div>
+
+        <div id="content-view" style="display: none;">
+            <button id="modal-back-button" title="Voltar para documentações">&larr; Voltar</button>
+            <h2 id="content-view-title">Selecione um Conteúdo</h2>
             <ul id="content-list">
                 </ul>
         </div>
     </div>
+</div>
     
     <script src="jsCanva/backend_mock.js"></script>
     <script src="jsCanva/utils.js"></script>

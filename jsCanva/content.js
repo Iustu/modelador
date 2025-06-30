@@ -49,29 +49,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function openContentModal(coords) {
+        const documentationView = document.getElementById('documentation-view');
+        const contentView = document.getElementById('content-view');
+        const documentationList = document.getElementById('documentation-list');
+        const contentList = document.getElementById('content-list');
+        const contentViewTitle = document.getElementById('content-view-title');
+        const backButton = document.getElementById('modal-back-button');
+        const modal = document.getElementById('content-modal');
+
+        // Reseta o modal para o estado inicial (visão de documentação)
+        documentationList.innerHTML = '';
         contentList.innerHTML = '';
-        const usedContentIds = new Set();
-        canvas.getObjects().forEach(obj => {
-            if (obj.contentId) {
-                usedContentIds.add(obj.contentId);
-            }
-        });
-        const availableContent = window.backendData.conteudos.filter(c => !usedContentIds.has(c.id));
-        if (availableContent.length === 0) {
-            alert("Todos os conteúdos já foram adicionados ao diagrama!");
-            return;
-        }
-        availableContent.forEach(content => {
+        contentView.style.display = 'none';
+        documentationView.style.display = 'block';
+
+        // Popula a lista de documentações
+        window.backendData.documentacoes.forEach(doc => {
             const li = document.createElement('li');
-            li.textContent = content.título;
-            li.dataset.contentId = content.id;
-            contentList.appendChild(li);
+            li.textContent = doc.titulo;
+            li.dataset.docId = doc.id;
+            documentationList.appendChild(li);
         });
+
+        // Mostra o modal
         modal.style.display = 'flex';
+
+        // Gerenciador de clique para a lista de documentações
+        documentationList.onclick = function(e) {
+            if (e.target && e.target.nodeName === "LI") {
+                const docId = e.target.dataset.docId;
+                const selectedDoc = window.backendData.documentacoes.find(d => d.id === docId);
+                if (selectedDoc) {
+                    showContentView(selectedDoc);
+                }
+            }
+        };
+
+        // Gerenciador de clique para a lista de conteúdos (lógica original)
         contentList.onclick = function(e) {
             if (e.target && e.target.nodeName === "LI") {
                 const selectedId = e.target.dataset.contentId;
-                const selectedContent = window.backendData.conteudos.find(c => c.id === selectedId);
+                const docId = e.target.dataset.docId; // Precisamos saber de qual doc veio
+                const selectedDoc = window.backendData.documentacoes.find(d => d.id === docId);
+                const selectedContent = selectedDoc.conteudos.find(c => c.id === selectedId);
+
                 createBox({
                     coords: coords,
                     color: '#3498db',
@@ -80,9 +101,49 @@ document.addEventListener('DOMContentLoaded', function() {
                     contentId: selectedContent.id,
                     fullText: selectedContent.texto
                 });
+
                 modal.style.display = 'none';
             }
         };
+
+        // Gerenciador de clique para o botão "Voltar"
+        backButton.onclick = function() {
+            contentView.style.display = 'none';
+            documentationView.style.display = 'block';
+        };
+
+        function showContentView(doc) {
+            contentList.innerHTML = '';
+
+            // Pega todos os IDs de conteúdo que já estão no canvas
+            const usedContentIds = new Set();
+            canvas.getObjects().forEach(obj => {
+                if (obj.contentId) {
+                    usedContentIds.add(obj.contentId);
+                }
+            });
+
+            const availableContent = doc.conteudos.filter(c => !usedContentIds.has(c.id));
+
+            if (availableContent.length === 0) {
+                alert("Todos os conteúdos desta documentação já foram adicionados!");
+                return;
+            }
+
+            // Popula a lista de conteúdos
+            availableContent.forEach(content => {
+                const li = document.createElement('li');
+                li.textContent = content.título;
+                li.dataset.contentId = content.id;
+                li.dataset.docId = doc.id; // Armazena o ID da documentação também
+                contentList.appendChild(li);
+            });
+
+            // Troca as visualizações
+            documentationView.style.display = 'none';
+            contentView.style.display = 'block';
+            contentViewTitle.textContent = `Selecione um Conteúdo de "${doc.titulo}"`;
+        }
     }
 
     function createBox(options) {
