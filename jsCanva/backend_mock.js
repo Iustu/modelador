@@ -36,5 +36,12 @@ window.backendData = {
         }
       ]
     }
+  ],
+  
+  "trilhas": [
+    { "id": "trilha-frontend", "titulo": "Desenvolvimento Front-End Essencial" },
+    { "id": "trilha-backend", "titulo": "Desenvolvimento Back-End com Node.js" },
+    { "id": "trilha-devops", "titulo": "Fundamentos de DevOps" },
+    { "id": "trilha-dados", "titulo": "Introdução à Ciência de Dados" }
   ]
 };

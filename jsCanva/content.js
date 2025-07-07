@@ -1,25 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Referências aos elementos do Modal ---
-    const modal = document.getElementById('content-modal');
+    // --- Referências aos Elementos ---
+    const contentModal = document.getElementById('content-modal');
+    const textInputModal = document.getElementById('text-input-modal');
+    const trilhaSelectModal = document.getElementById('trilha-select-modal');
+
     const contentList = document.getElementById('content-list');
-    const closeButton = document.getElementById('modal-close-button');
+    const contentCloseButton = document.getElementById('modal-close-button');
     const documentationView = document.getElementById('documentation-view');
     const contentView = document.getElementById('content-view');
     const documentationList = document.getElementById('documentation-list');
     const contentViewTitle = document.getElementById('content-view-title');
     const backButton = document.getElementById('modal-back-button');
+    
+    const trilhaList = document.getElementById('trilha-list');
+    const trilhaModalCloseButton = document.getElementById('trilha-modal-close-button');
+
 
     // --- Lógica de Drag & Drop ---
-
-    // Habilita o drag & drop para todas as formas da sidebar.
     document.querySelectorAll('.shape[draggable="true"]').forEach(shape => {
         shape.addEventListener('dragstart', (e) => {
-            // Passa o tipo do objeto (subject, content, start, end) para o evento.
             e.dataTransfer.setData('data-type', e.target.dataset.type);
         });
     });
 
-    // Manipula o drop no canvas para criar o objeto correspondente.
     window.handleDropOnCanvas = function(e) {
         e.preventDefault();
         const dataType = e.dataTransfer.getData('data-type');
@@ -31,19 +34,25 @@ document.addEventListener('DOMContentLoaded', function() {
             y: e.clientY - canvasRect.top
         };
 
-        // Decide qual função de criação chamar com base no tipo de objeto arrastado.
-        if (dataType === 'subject') {
-            createSubject(dropCoords);
-        } else if (dataType === 'content') {
-            openContentModal(dropCoords);
-        } else if (dataType === 'start' || dataType === 'end') {
-            createStartEndNode({ coords: dropCoords, type: dataType });
+        switch (dataType) {
+            case 'subject':
+                createSubject(dropCoords);
+                break;
+            case 'content':
+                openContentModal(dropCoords);
+                break;
+            case 'start':
+            case 'end':
+                createStartEndNode({ coords: dropCoords, type: dataType });
+                break;
+            case 'trilha':
+                openTrilhaModal(dropCoords);
+                break;
         }
     };
 
     // --- Funções de Criação de Objetos ---
 
-    // Cria um nó de Início ou Fim no canvas.
     function createStartEndNode(options) {
         let node;
         const commonOptions = {
@@ -55,44 +64,17 @@ document.addEventListener('DOMContentLoaded', function() {
             hasControls: false,
             objectId: generateId(),
         };
-    
-        // A lógica foi INVERTIDA aqui.
+
         if (options.type === 'start') {
-            // O NÓ DE INÍCIO agora é a bola preta sólida.
-            node = new fabric.Circle({
-                ...commonOptions,
-                radius: 15,
-                fill: 'black',
-                customType: 'start',
-                type: 'node'
-            });
-        } else { // type === 'end'
-            // O NÓ DE FIM agora tem o centro preto e a borda tracejada.
-            const innerCircle = new fabric.Circle({
-                radius: 12,
-                fill: 'black',
-                originX: 'center',
-                originY: 'center'
-            });
-            const outerCircle = new fabric.Circle({
-                radius: 18,
-                fill: 'transparent',
-                stroke: 'black',
-                strokeWidth: 2,
-                strokeDashArray: [5, 3],
-                originX: 'center',
-                originY: 'center'
-            });
-            node = new fabric.Group([outerCircle, innerCircle], {
-                ...commonOptions,
-                customType: 'end',
-                type: 'node'
-            });
+            node = new fabric.Circle({ ...commonOptions, radius: 15, fill: 'black', customType: 'start', type: 'node' });
+        } else { // 'end'
+            const innerCircle = new fabric.Circle({ radius: 12, fill: 'black', originX: 'center', originY: 'center' });
+            const outerCircle = new fabric.Circle({ radius: 18, fill: 'transparent', stroke: 'black', strokeWidth: 2, strokeDashArray: [5, 3], originX: 'center', originY: 'center' });
+            node = new fabric.Group([outerCircle, innerCircle], { ...commonOptions, customType: 'end', type: 'node' });
         }
         canvas.add(node).setActiveObject(node);
     }
     
-    // Cria uma caixa de Assunto.
     function createSubject(coords) {
         const userText = prompt("Digite o título para o Assunto:", "");
         if (userText === null || userText.trim() === "") return;
@@ -100,84 +82,108 @@ document.addEventListener('DOMContentLoaded', function() {
             coords: coords,
             color: '#f1c40f',
             text: userText,
-            isSubject: true
+            customType: 'subject'
         });
     }
     
-    // Cria uma caixa de Assunto ou Conteúdo.
     function createBox(options) {
         const rectWidth = 140;
         const rectHeight = 60;
-    
+
         const rect = new fabric.Rect({
-            width: rectWidth,
-            height: rectHeight,
-            fill: options.color,
-            rx: 5,
-            ry: 5,
-            originX: 'center',
-            originY: 'center'
+            width: rectWidth, height: rectHeight, fill: options.color,
+            rx: 5, ry: 5, originX: 'center', originY: 'center'
         });
-    
+
+        let textColor = (options.customType === 'subject' || options.customType === 'content' || options.customType === 'trilha') 
+            ? '#ffffff' 
+            : '#000000';
+
         const text = new fabric.Textbox(options.text, {
-            width: 120,
-            fontSize: 16,
-            textAlign: 'center',
-            fill: '#000',
-            originX: 'center',
-            originY: 'center'
+            width: 120, fontSize: 16, textAlign: 'center',
+            fill: textColor, originX: 'center', originY: 'center'
         });
-    
+
         const numberText = new fabric.Text('', {
-            fontSize: 14,
-            fontWeight: 'bold',
-            fill: 'rgba(0,0,0,0.4)',
-            isHierarchyNumber: true,
-            originX: 'left',
-            originY: 'top',
-            left: -(rectWidth / 2) + 5,
-            top: -(rectHeight / 2) + 5
+            fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
+            isHierarchyNumber: true, originX: 'left', originY: 'top',
+            left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
         });
-    
+
         const groupOptions = {
-            left: options.coords.x,
-            top: options.coords.y,
-            objectId: generateId(),
-            type: 'box',
-            hasControls: true,
-            selectable: true,
-            cornerStyle: 'circle'
+            left: options.coords.x, top: options.coords.y,
+            objectId: generateId(), type: 'box', hasControls: true,
+            selectable: true, cornerStyle: 'circle', customType: options.customType
         };
-    
-        if (options.isSubject) {
-            groupOptions.customType = 'subject';
+
+        if (options.customType === 'subject') {
             groupOptions.childrenIds = [];
-        } else {
-            groupOptions.customType = 'content';
+        } else if (options.customType === 'content') {
             groupOptions.parentId = null;
             groupOptions.contentId = options.contentId;
             groupOptions.fullText = options.fullText;
+        } else if (options.customType === 'trilha') {
+            groupOptions.trilhaId = options.trilhaId;
         }
-    
+
         const group = new fabric.Group([rect, text, numberText], groupOptions);
         canvas.add(group).setActiveObject(group);
-    
+
         if (window.updateAllHierarchyNumbers) {
             window.updateAllHierarchyNumbers();
         }
     }
 
-    // --- Lógica do Modal de Conteúdo ---
-    
-    // Abre e gerencia o modal de 2 níveis.
+    // --- Lógica dos Modais ---
+
+    function openTrilhaModal(coords) {
+        trilhaList.innerHTML = '';
+        const usedTrilhaIds = new Set();
+        canvas.getObjects().forEach(obj => {
+            if (obj.trilhaId) {
+                usedTrilhaIds.add(obj.trilhaId);
+            }
+        });
+        const availableTrilhas = window.backendData.trilhas.filter(t => !usedTrilhaIds.has(t.id));
+
+        if (availableTrilhas.length === 0) {
+            alert("Todas as trilhas já foram adicionadas ao diagrama!");
+            return;
+        }
+
+        availableTrilhas.forEach(trilha => {
+            const li = document.createElement('li');
+            li.textContent = trilha.titulo;
+            li.dataset.trilhaId = trilha.id;
+            trilhaList.appendChild(li);
+        });
+
+        trilhaSelectModal.style.display = 'flex';
+
+        trilhaList.onclick = function(e) {
+            if (e.target && e.target.nodeName === "LI") {
+                const trilhaId = e.target.dataset.trilhaId;
+                const selectedTrilha = window.backendData.trilhas.find(t => t.id === trilhaId);
+                
+                createBox({
+                    coords: coords,
+                    color: '#009c3b',
+                    text: selectedTrilha.titulo,
+                    customType: 'trilha',
+                    trilhaId: selectedTrilha.id
+                });
+
+                trilhaSelectModal.style.display = 'none';
+            }
+        };
+    }
+
     function openContentModal(coords) {
-        // Reseta o modal para o estado inicial (visão de documentação)
         documentationList.innerHTML = '';
         contentList.innerHTML = '';
         contentView.style.display = 'none';
         documentationView.style.display = 'block';
 
-        // Popula a lista de documentações
         window.backendData.documentacoes.forEach(doc => {
             const li = document.createElement('li');
             li.textContent = doc.titulo;
@@ -185,9 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
             documentationList.appendChild(li);
         });
 
-        modal.style.display = 'flex';
+        contentModal.style.display = 'flex';
 
-        // Gerenciador de clique para a lista de documentações (Nível 1)
         documentationList.onclick = function(e) {
             if (e.target && e.target.nodeName === "LI") {
                 const docId = e.target.dataset.docId;
@@ -198,7 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         
-        // Gerenciador de clique para a lista de conteúdos (Nível 2)
         contentList.onclick = function(e) {
             if (e.target && e.target.nodeName === "LI") {
                 const selectedId = e.target.dataset.contentId;
@@ -210,16 +214,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     coords: coords,
                     color: '#3498db',
                     text: selectedContent.título,
-                    isSubject: false,
+                    customType: 'content',
                     contentId: selectedContent.id,
                     fullText: selectedContent.texto
                 });
-
-                modal.style.display = 'none';
+                contentModal.style.display = 'none';
             }
         };
 
-        // Gerenciador de clique para o botão "Voltar"
         backButton.onclick = function() {
             contentView.style.display = 'none';
             documentationView.style.display = 'block';
@@ -228,18 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
         function showContentView(doc) {
             contentList.innerHTML = '';
             const usedContentIds = new Set();
-            canvas.getObjects().forEach(obj => {
-                if (obj.contentId) {
-                    usedContentIds.add(obj.contentId);
-                }
-            });
-
+            canvas.getObjects().forEach(obj => { if (obj.contentId) { usedContentIds.add(obj.contentId); } });
             const availableContent = doc.conteudos.filter(c => !usedContentIds.has(c.id));
             if (availableContent.length === 0) {
                 alert("Todos os conteúdos desta documentação já foram adicionados!");
                 return;
             }
-
             availableContent.forEach(content => {
                 const li = document.createElement('li');
                 li.textContent = content.título;
@@ -247,22 +243,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 li.dataset.docId = doc.id;
                 contentList.appendChild(li);
             });
-
             documentationView.style.display = 'none';
             contentView.style.display = 'block';
             contentViewTitle.textContent = `Selecione um Conteúdo de "${doc.titulo}"`;
         }
     }
 
-    // --- Eventos de Botões ---
-
-    closeButton.addEventListener('click', () => {
-        modal.style.display = 'none';
+    // --- Eventos de Botões e Fechamento de Modais ---
+    contentCloseButton.addEventListener('click', () => {
+        contentModal.style.display = 'none';
     });
-
+    trilhaModalCloseButton.addEventListener('click', () => {
+        trilhaSelectModal.style.display = 'none';
+    });
+    
     window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
+        if (e.target === contentModal || e.target === textInputModal || e.target === trilhaSelectModal) {
+            contentModal.style.display = 'none';
+            textInputModal.style.display = 'none';
+            trilhaSelectModal.style.display = 'none';
         }
     });
 
@@ -272,13 +271,13 @@ document.addEventListener('DOMContentLoaded', function() {
             alert("Nenhum item selecionado.");
             return;
         }
-        if (active.customType !== 'subject') {
-            alert("Apenas o título de 'Assuntos' pode ser editado manualmente.");
+        if (active.customType !== 'subject' && active.customType !== 'trilha') {
+            alert("Apenas o título de 'Assuntos' e 'Trilhas' pode ser editado manualmente.");
             return;
         }
         const textObj = active._objects.find(o => o.type === 'textbox' && !o.isHierarchyNumber);
         if (!textObj) return;
-        const newText = prompt("Editar título do Assunto:", textObj.text);
+        const newText = prompt("Editar título:", textObj.text);
         if (newText !== null) {
             textObj.set('text', newText);
             active.setCoords();

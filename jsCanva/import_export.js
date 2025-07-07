@@ -16,15 +16,18 @@ document.getElementById("export-button").addEventListener("click", () => {
                 scaleY: obj.scaleY,
                 angle: obj.angle,
                 text: textObj ? textObj.text : "",
+                textColor: textObj ? textObj.fill : "#000000", // Salva a cor do texto
                 fill: obj._objects[0].fill,
                 hierarchyNumber: obj.hierarchyNumber
             };
             if (obj.customType === 'subject') {
                 objData.childrenIds = obj.childrenIds;
-            } else {
+            } else if (obj.customType === 'content') {
                 objData.parentId = obj.parentId;
                 objData.contentId = obj.contentId;
                 objData.fullText = obj.fullText;
+            } else if (obj.customType === 'trilha') {
+                objData.trilhaId = obj.trilhaId;
             }
             data.diagramObjects.push(objData);
 
@@ -81,26 +84,27 @@ document.getElementById("import-button").addEventListener("click", () => {
                     width: rectWidth, height: rectHeight, fill: objData.fill, rx: 5, ry: 5,
                     originX: 'center', originY: 'center'
                 });
+                
+                // Usa a cor do texto salva no JSON, com um fallback para preto por segurança.
+                const textColor = objData.textColor || '#000000';
                 const text = new fabric.Textbox(objData.text, {
                     width: 120, fontSize: 16, textAlign: 'center',
-                    fill: '#000', originX: 'center', originY: 'center'
+                    fill: textColor, originX: 'center', originY: 'center'
                 });
+
                 const numberText = new fabric.Text(objData.hierarchyNumber || '', {
                     fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
                     isHierarchyNumber: true, originX: 'left', originY: 'top',
                     left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
                 });
+                
                 newObj = new fabric.Group([rect, text, numberText], objectOptions);
             
             } else if (objData.type === 'node') {
                 const nodeOptions = { ...objectOptions, originX: 'center', originY: 'center' };
-                
-                // --- CORREÇÃO APLICADA AQUI ---
                 if (objData.customType === 'start') {
-                    // Recria o nó de Início (círculo preto sólido) com raio e preenchimento.
                     newObj = new fabric.Circle({ ...nodeOptions, radius: 15, fill: 'black' });
                 } else { // 'end'
-                    // Recria o nó de Fim (círculo com borda tracejada).
                     const innerCircle = new fabric.Circle({ radius: 12, fill: 'black', originX: 'center', originY: 'center' });
                     const outerCircle = new fabric.Circle({ radius: 18, fill: 'transparent', stroke: 'black', strokeWidth: 2, strokeDashArray: [5, 3], originX: 'center', originY: 'center' });
                     newObj = new fabric.Group([outerCircle, innerCircle], nodeOptions);
