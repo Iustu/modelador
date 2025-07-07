@@ -6,6 +6,8 @@ document.getElementById("export-button").addEventListener("click", () => {
 
         if (obj.type === 'box') {
             const textObj = obj._objects.find(o => o.type === 'textbox' && !o.isHierarchyNumber);
+            const rectObj = obj._objects.find(o => o.type === 'rect');
+            
             objData = {
                 type: 'box',
                 customType: obj.customType,
@@ -16,10 +18,15 @@ document.getElementById("export-button").addEventListener("click", () => {
                 scaleY: obj.scaleY,
                 angle: obj.angle,
                 text: textObj ? textObj.text : "",
-                textColor: textObj ? textObj.fill : "#000000", // Salva a cor do texto
-                fill: obj._objects[0].fill,
+                textColor: textObj ? textObj.fill : "#000000",
+                fill: rectObj.fill,
+                // Salva as propriedades da borda
+                stroke: rectObj.stroke,
+                strokeWidth: rectObj.strokeWidth,
+                strokeDashArray: rectObj.strokeDashArray,
                 hierarchyNumber: obj.hierarchyNumber
             };
+
             if (obj.customType === 'subject') {
                 objData.childrenIds = obj.childrenIds;
             } else if (obj.customType === 'content') {
@@ -33,14 +40,8 @@ document.getElementById("export-button").addEventListener("click", () => {
 
         } else if (obj.type === 'node') {
             objData = {
-                type: 'node',
-                customType: obj.customType,
-                id: obj.objectId,
-                left: obj.left,
-                top: obj.top,
-                scaleX: obj.scaleX,
-                scaleY: obj.scaleY,
-                angle: obj.angle,
+                type: 'node', customType: obj.customType, id: obj.objectId,
+                left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY, angle: obj.angle,
             };
             data.diagramObjects.push(objData);
 
@@ -82,10 +83,13 @@ document.getElementById("import-button").addEventListener("click", () => {
                 const rectHeight = 60;
                 const rect = new fabric.Rect({
                     width: rectWidth, height: rectHeight, fill: objData.fill, rx: 5, ry: 5,
-                    originX: 'center', originY: 'center'
+                    originX: 'center', originY: 'center',
+                    // Restaura as propriedades da borda
+                    stroke: objData.stroke,
+                    strokeWidth: objData.strokeWidth,
+                    strokeDashArray: objData.strokeDashArray
                 });
                 
-                // Usa a cor do texto salva no JSON, com um fallback para preto por segurança.
                 const textColor = objData.textColor || '#000000';
                 const text = new fabric.Textbox(objData.text, {
                     width: 120, fontSize: 16, textAlign: 'center',

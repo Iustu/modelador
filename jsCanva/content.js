@@ -89,33 +89,55 @@ document.addEventListener('DOMContentLoaded', function() {
     function createBox(options) {
         const rectWidth = 140;
         const rectHeight = 60;
-
+        
         const rect = new fabric.Rect({
             width: rectWidth, height: rectHeight, fill: options.color,
             rx: 5, ry: 5, originX: 'center', originY: 'center'
         });
-
-        let textColor = (options.customType === 'subject' || options.customType === 'content' || options.customType === 'trilha') 
-            ? '#ffffff' 
-            : '#000000';
-
+    
+        // APLICA O ESTILO DA BORDA COM BASE NO TIPO DA CAIXA
+        switch (options.customType) {
+            case 'subject': // Borda tracejada para Assunto
+                rect.set({
+                    stroke: 'black',
+                    strokeWidth: 2,
+                    strokeDashArray: [8, 4]
+                });
+                break;
+            case 'trilha': // Borda contínua para Trilha
+                rect.set({
+                    stroke: 'black',
+                    strokeWidth: 2
+                });
+                break;
+            // Nenhum 'case' para 'content', pois ele não tem borda, como solicitado.
+        }
+    
+        let textColor = '#000000';
+        if (options.customType === 'content' || options.customType === 'trilha') {
+            textColor = '#ffffff';
+        } else if (options.customType === 'subject') {
+            // Revertido para preto para melhor contraste com o amarelo
+            textColor = '#000000'; 
+        }
+    
         const text = new fabric.Textbox(options.text, {
             width: 120, fontSize: 16, textAlign: 'center',
             fill: textColor, originX: 'center', originY: 'center'
         });
-
+    
         const numberText = new fabric.Text('', {
             fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
             isHierarchyNumber: true, originX: 'left', originY: 'top',
             left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
         });
-
+    
         const groupOptions = {
             left: options.coords.x, top: options.coords.y,
             objectId: generateId(), type: 'box', hasControls: true,
             selectable: true, cornerStyle: 'circle', customType: options.customType
         };
-
+    
         if (options.customType === 'subject') {
             groupOptions.childrenIds = [];
         } else if (options.customType === 'content') {
@@ -125,10 +147,10 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (options.customType === 'trilha') {
             groupOptions.trilhaId = options.trilhaId;
         }
-
+    
         const group = new fabric.Group([rect, text, numberText], groupOptions);
         canvas.add(group).setActiveObject(group);
-
+    
         if (window.updateAllHierarchyNumbers) {
             window.updateAllHierarchyNumbers();
         }
