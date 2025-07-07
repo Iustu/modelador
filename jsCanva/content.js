@@ -1,3 +1,5 @@
+/* ARQUIVO: jsCanva/content.js */
+
 document.addEventListener('DOMContentLoaded', function() {
     // --- Referências aos Elementos ---
     const contentModal = document.getElementById('content-modal');
@@ -16,149 +18,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const trilhaModalCloseButton = document.getElementById('trilha-modal-close-button');
 
 
-    // --- Lógica de Drag & Drop ---
+    // --- Lógica de Drag & Drop (Apenas a parte de 'dragstart') ---
     document.querySelectorAll('.shape[draggable="true"]').forEach(shape => {
         shape.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('data-type', e.target.dataset.type);
         });
     });
 
-    window.handleDropOnCanvas = function(e) {
-        e.preventDefault();
-        const dataType = e.dataTransfer.getData('data-type');
-        if (!dataType) return;
+    // --- Funções de Criação (refatoradas para retornar o objeto) ---
 
-        const canvasRect = canvas.upperCanvasEl.getBoundingClientRect();
-        const dropCoords = {
-            x: e.clientX - canvasRect.left,
-            y: e.clientY - canvasRect.top
-        };
-
-        switch (dataType) {
-            case 'subject':
-                createSubject(dropCoords);
-                break;
-            case 'content':
-                openContentModal(dropCoords);
-                break;
-            case 'start':
-            case 'end':
-                createStartEndNode({ coords: dropCoords, type: dataType });
-                break;
-            case 'trilha':
-                openTrilhaModal(dropCoords);
-                break;
-        }
-    };
-
-    // --- Funções de Criação de Objetos ---
-
-    function createStartEndNode(options) {
-        let node;
-        const commonOptions = {
-            left: options.coords.x,
-            top: options.coords.y,
-            originX: 'center',
-            originY: 'center',
-            selectable: true,
-            hasControls: false,
-            objectId: generateId(),
-        };
-
-        if (options.type === 'start') {
-            node = new fabric.Circle({ ...commonOptions, radius: 15, fill: 'black', customType: 'start', type: 'node' });
-        } else { // 'end'
-            const innerCircle = new fabric.Circle({ radius: 12, fill: 'black', originX: 'center', originY: 'center' });
-            const outerCircle = new fabric.Circle({ radius: 18, fill: 'transparent', stroke: 'black', strokeWidth: 2, strokeDashArray: [5, 3], originX: 'center', originY: 'center' });
-            node = new fabric.Group([outerCircle, innerCircle], { ...commonOptions, customType: 'end', type: 'node' });
-        }
-        canvas.add(node).setActiveObject(node);
-    }
-    
-    function createSubject(coords) {
-        const userText = prompt("Digite o título para o Assunto:", "");
-        if (userText === null || userText.trim() === "") return;
-        createBox({
-            coords: coords,
-            color: '#f1c40f',
-            text: userText,
-            customType: 'subject'
-        });
-    }
-    
-    function createBox(options) {
-        const rectWidth = 140;
-        const rectHeight = 60;
-        
-        const rect = new fabric.Rect({
-            width: rectWidth, height: rectHeight, fill: options.color,
-            rx: 5, ry: 5, originX: 'center', originY: 'center'
-        });
-    
-        // APLICA O ESTILO DA BORDA COM BASE NO TIPO DA CAIXA
-        switch (options.customType) {
-            case 'subject': // Borda tracejada para Assunto
-                rect.set({
-                    stroke: 'black',
-                    strokeWidth: 2,
-                    strokeDashArray: [8, 4]
-                });
-                break;
-            case 'trilha': // Borda contínua para Trilha
-                rect.set({
-                    stroke: 'black',
-                    strokeWidth: 2
-                });
-                break;
-            // Nenhum 'case' para 'content', pois ele não tem borda, como solicitado.
-        }
-    
-        let textColor = '#000000';
-        if (options.customType === 'content' || options.customType === 'trilha') {
-            textColor = '#ffffff';
-        } else if (options.customType === 'subject') {
-            // Revertido para preto para melhor contraste com o amarelo
-            textColor = '#000000'; 
-        }
-    
-        const text = new fabric.Textbox(options.text, {
-            width: 120, fontSize: 16, textAlign: 'center',
-            fill: textColor, originX: 'center', originY: 'center'
-        });
-    
-        const numberText = new fabric.Text('', {
-            fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
-            isHierarchyNumber: true, originX: 'left', originY: 'top',
-            left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
-        });
-    
-        const groupOptions = {
-            left: options.coords.x, top: options.coords.y,
-            objectId: generateId(), type: 'box', hasControls: true,
-            selectable: true, cornerStyle: 'circle', customType: options.customType
-        };
-    
-        if (options.customType === 'subject') {
-            groupOptions.childrenIds = [];
-        } else if (options.customType === 'content') {
-            groupOptions.parentId = null;
-            groupOptions.contentId = options.contentId;
-            groupOptions.fullText = options.fullText;
-        } else if (options.customType === 'trilha') {
-            groupOptions.trilhaId = options.trilhaId;
-        }
-    
-        const group = new fabric.Group([rect, text, numberText], groupOptions);
-        canvas.add(group).setActiveObject(group);
-    
-        if (window.updateAllHierarchyNumbers) {
-            window.updateAllHierarchyNumbers();
-        }
-    }
-
-    // --- Lógica dos Modais ---
-
-    function openTrilhaModal(coords) {
+    window.openTrilhaModal = function(coords) {
         trilhaList.innerHTML = '';
         const usedTrilhaIds = new Set();
         canvas.getObjects().forEach(obj => {
@@ -186,21 +55,33 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target && e.target.nodeName === "LI") {
                 const trilhaId = e.target.dataset.trilhaId;
                 const selectedTrilha = window.backendData.trilhas.find(t => t.id === trilhaId);
-                
-                createBox({
+                const box = createBox({
                     coords: coords,
                     color: '#009c3b',
                     text: selectedTrilha.titulo,
                     customType: 'trilha',
                     trilhaId: selectedTrilha.id
                 });
-
+                window.addObjectToCanvas(box); // Usa a nova função central
                 trilhaSelectModal.style.display = 'none';
             }
         };
     }
 
-    function openContentModal(coords) {
+    window.createSubject = function(coords) {
+        const userText = prompt("Digite o título para o Assunto:", "");
+        if (userText && userText.trim() !== "") {
+            const box = createBox({
+                coords: coords,
+                color: '#f1c40f',
+                text: userText,
+                customType: 'subject'
+            });
+            window.addObjectToCanvas(box); // Usa a nova função central
+        }
+    };
+
+    window.openContentModal = function(coords) {
         documentationList.innerHTML = '';
         contentList.innerHTML = '';
         contentView.style.display = 'none';
@@ -231,8 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const docId = e.target.dataset.docId;
                 const selectedDoc = window.backendData.documentacoes.find(d => d.id === docId);
                 const selectedContent = selectedDoc.conteudos.find(c => c.id === selectedId);
-
-                createBox({
+                const box = createBox({
                     coords: coords,
                     color: '#3498db',
                     text: selectedContent.título,
@@ -240,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     contentId: selectedContent.id,
                     fullText: selectedContent.texto
                 });
+                window.addObjectToCanvas(box); // Usa a nova função central
                 contentModal.style.display = 'none';
             }
         };
@@ -271,6 +152,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // A função createBox agora APENAS CRIA e RETORNA a caixa.
+    function createBox(options) {
+        const rectWidth = 140;
+        const rectHeight = 60;
+    
+        const rect = new fabric.Rect({
+            width: rectWidth, height: rectHeight, fill: options.color,
+            rx: 5, ry: 5, originX: 'center', originY: 'center'
+        });
+
+        switch (options.customType) {
+            case 'subject':
+                rect.set({ stroke: 'black', strokeWidth: 2, strokeDashArray: [8, 4] });
+                break;
+            case 'trilha':
+                rect.set({ stroke: 'black', strokeWidth: 2 });
+                break;
+        }
+    
+        let textColor = '#000000';
+        if (options.customType !== 'subject') {
+            textColor = '#ffffff';
+        }
+    
+        const text = new fabric.Textbox(options.text, {
+            width: 120, fontSize: 16, textAlign: 'center',
+            fill: textColor, originX: 'center', originY: 'center'
+        });
+    
+        const numberText = new fabric.Text('', {
+            fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
+            isHierarchyNumber: true, originX: 'left', originY: 'top',
+            left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
+        });
+    
+        const groupOptions = {
+            left: options.coords.x, top: options.coords.y,
+            objectId: generateId(), type: 'box', hasControls: true,
+            selectable: true, cornerStyle: 'circle', customType: options.customType
+        };
+    
+        if (options.customType === 'subject') {
+            groupOptions.childrenIds = [];
+        } else if (options.customType === 'content') {
+            groupOptions.parentId = null;
+            groupOptions.contentId = options.contentId;
+            groupOptions.fullText = options.fullText;
+        } else if (options.customType === 'trilha') {
+            groupOptions.trilhaId = options.trilhaId;
+        }
+    
+        return new fabric.Group([rect, text, numberText], groupOptions);
+    }
+
     // --- Eventos de Botões e Fechamento de Modais ---
     contentCloseButton.addEventListener('click', () => {
         contentModal.style.display = 'none';
@@ -280,9 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     window.addEventListener('click', (e) => {
-        if (e.target === contentModal || e.target === textInputModal || e.target === trilhaSelectModal) {
+        if (e.target === contentModal || e.target === trilhaSelectModal) {
             contentModal.style.display = 'none';
-            textInputModal.style.display = 'none';
             trilhaSelectModal.style.display = 'none';
         }
     });

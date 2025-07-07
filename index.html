@@ -1,91 +1,96 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Learning Curve™ </title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
-</head>
-<body>
-    <div id="app-container">
-        <header class="app-header">
-            <div class="header-content">
-                <h1>Modelador de Trilhas</h1>
-                <input type="text" id="diagram-title-input" placeholder="Digite o título do seu diagrama aqui...">
-            </div>
-        </header>
-        <main class="main-content">
-            <aside class="sidebar">
-                <div class="sidebar-group">
-                    <h3>Formas</h3>
-                    <div class="shape verde" draggable="true" data-type="trilha" title="Uma nova trilha ou sub-trilha">Trilha</div>
-                    <div class="shape amarelo" draggable="true" data-type="subject" title="Um conjunto de conteúdos">Assunto</div>
-                    <div class="shape azul" draggable="true" data-type="content" title="Contem explicações">Conteúdo</div>
-                    <div class="shape node-shape" draggable="true" data-type="start" title="O início de uma trilha">
-                        <div class="start-node-icon"></div> Início
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Learning Curve™ </title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    </head>
+    <body>
+        <div id="app-container">
+            <header class="app-header">
+                <div class="header-content">
+                    <h1>Modelador de Trilhas</h1>
+                    <input type="text" id="diagram-title-input" placeholder="Digite o título do seu diagrama aqui...">
+                </div>
+            </header>
+            <main class="main-content">
+                <aside class="sidebar">
+                    <div class="sidebar-group">
+                        <h3>Formas</h3>
+                        <div class="shape verde" draggable="true" data-type="trilha" title="Uma nova trilha ou sub-trilha">Trilha</div>
+                        <div class="shape amarelo" draggable="true" data-type="subject" title="Um conjunto de conteúdos">Assunto</div>
+                        <div class="shape azul" draggable="true" data-type="content" title="Contem explicações">Conteúdo</div>
+                        <div class="shape node-shape" draggable="true" data-type="start" title="O início de uma trilha">
+                            <div class="start-node-icon"></div> Início
+                        </div>
+                        <div class="shape node-shape" draggable="true" data-type="end" title="O fim de uma trilha">
+                            <div class="end-node-icon">
+                                <div class="end-node-icon-inner"></div>
+                            </div> Fim
+                        </div>
+                        <div class="shape node-shape" draggable="true" data-type="exclusive_gateway" title="Paralelismo Exclusivo (XOR)">
+                            <div class="gateway-icon gateway-exclusive-icon"></div> Exclusivo
+                        </div>
+                        <div class="shape node-shape" draggable="true" data-type="parallel_gateway" title="Paralelismo (OR)">
+                            <div class="gateway-icon gateway-parallel-icon"></div> Paralelo
+                        </div>
+                        <div class="shape node-shape" draggable="true" data-type="inclusive_gateway" title="Reunião">
+                            <div class="gateway-icon gateway-inclusive-icon"></div> Inclusivo
+                        </div>
                     </div>
-                    <div class="shape node-shape" draggable="true" data-type="end" title="O fim de uma trilha">
-                        <div class="end-node-icon">
-                            <div class="end-node-icon-inner"></div>
-                        </div> Fim
+                    <div class="sidebar-group">
+                        <h3>Ferramentas</h3>
+                        <button id="arrow-button" title="Clique para desenhar uma seta contínua.">-➤ Seta contínua</button>
+                        <button id="dashed-arrow-button" title="Clique para desenhar uma seta tracejada.">⤏ Seta tracejada</button>
+                        <button id="edit-text-button">✎ Editar Texto</button>
+                        <button id="delete-button">🗑️ Excluir Item</button>
                     </div>
+                    <div class="sidebar-group">
+                        <h3>Arquivo</h3>
+                        <button id="validate-button">🔎 Validar</button>
+                        <button id="export-button">💾 Exportar</button>
+                        <button id="import-button">📂 Importar</button>
+                    </div>
+                </aside>
+                <div class="canvas-wrapper">
+                    <canvas id="canvas"></canvas>
                 </div>
-                <div class="sidebar-group">
-                    <h3>Ferramentas</h3>
-                    <button id="arrow-button" title="Clique para desenhar uma seta contínua.">-➤ Seta contínua</button>
-                    <button id="dashed-arrow-button" title="Clique para desenhar uma seta tracejada.">⤏ Seta tracejada</button>
-                    <button id="edit-text-button">✎ Editar Texto</button>
-                    <button id="delete-button">🗑️ Excluir Item</button>
-                </div>
-                <div class="sidebar-group">
-                    <h3>Arquivo</h3>
-                    <button id="validate-button">🔎 Validar</button>
-                    <button id="export-button">💾 Exportar</button>
-                    <button id="import-button">📂 Importar</button>
-                </div>
-            </aside>
-            <div class="canvas-wrapper">
-                <canvas id="canvas"></canvas>
-            </div>
-        </main>
-    </div>
-
-    <div id="content-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span id="modal-close-button" class="modal-close-button">&times;</span>
-
-            <div id="documentation-view">
-                <h2>Selecione uma Documentação</h2>
-                <ul id="documentation-list">
-                    </ul>
-            </div>
-
-            <div id="content-view" style="display: none;">
-                <button id="modal-back-button" title="Voltar para documentações">&larr; Voltar</button>
-                <h2 id="content-view-title">Selecione um Conteúdo</h2>
-                <ul id="content-list">
-                    </ul>
-            </div>
+            </main>
         </div>
-    </div>
-
-    <div id="trilha-select-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span id="trilha-modal-close-button" class="modal-close-button">&times;</span>
-            <h2>Selecione uma Trilha</h2>
-            <ul id="trilha-list">
-                </ul>
-        </div>
-    </div>
     
-    <script src="jsCanva/backend_mock.js"></script>
-    <script src="jsCanva/utils.js"></script>
-    <script src="jsCanva/arrow.js"></script>
-    <script src="jsCanva/content.js"></script>
-    <script src="jsCanva/import_export.js"></script>
-    <script src="jsCanva/canvas.js"></script>
-    <script src="jsCanva/validator.js"></script>
-    <script src="jsCanva/hierarchy.js"></script>
-</body>
+        <div id="content-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <span id="modal-close-button" class="modal-close-button">&times;</span>
+                <div id="documentation-view">
+                    <h2>Selecione uma Documentação</h2>
+                    <ul id="documentation-list"></ul>
+                </div>
+                <div id="content-view" style="display: none;">
+                    <button id="modal-back-button" title="Voltar para documentações">&larr; Voltar</button>
+                    <h2 id="content-view-title">Selecione um Conteúdo</h2>
+                    <ul id="content-list"></ul>
+                </div>
+            </div>
+        </div>
+    
+        <div id="trilha-select-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <span id="trilha-modal-close-button" class="modal-close-button">&times;</span>
+                <h2>Selecione uma Trilha</h2>
+                <ul id="trilha-list"></ul>
+            </div>
+        </div>
+        
+        <script src="jsCanva/backend_mock.js"></script>
+        <script src="jsCanva/utils.js"></script>
+        <script src="jsCanva/arrow.js"></script>
+        <script src="jsCanva/flow.js"></script>
+        <script src="jsCanva/content.js"></script>
+        <script src="jsCanva/import_export.js"></script>
+        <script src="jsCanva/canvas.js"></script>
+        <script src="jsCanva/validator.js"></script>
+        <script src="jsCanva/hierarchy.js"></script>
+    </body>
 </html>

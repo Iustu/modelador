@@ -5,22 +5,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const debouncedResize = debounce(resizeCanvas, 150);
     window.addEventListener('resize', debouncedResize);
     
+    // --- Configuração Central de Eventos do Canvas ---
     canvas.upperCanvasEl.addEventListener('dragover', e => e.preventDefault());
-    canvas.upperCanvasEl.addEventListener('drop', window.handleDropOnCanvas);
+    canvas.upperCanvasEl.addEventListener('drop', handleDropOnCanvas); // Centraliza o evento de drop aqui
     canvas.on('mouse:down', window.handleMouseDownForArrow);
-
-    // CORREÇÃO APLICADA AQUI
     canvas.on('object:modified', e => {
-        // A condição agora inclui o 'type: node' para que a seta siga os nós de Início e Fim.
         if (e.target && (e.target.type === 'box' || e.target.type === 'node')) {
             window.updateArrowsForObject(e.target);
             window.updateAllHierarchyNumbers();
         }
     });
 
-    document.getElementById('delete-button').addEventListener('click', () => {
-        handleDelete();
-    });
+    document.getElementById('delete-button').addEventListener('click', handleDelete);
     document.addEventListener('keydown', e => {
         if (e.key === 'Delete') {
             e.preventDefault();
@@ -28,24 +24,67 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Listener para cancelar o modo de seta ao clicar em outros botões da sidebar.
     document.querySelector('.sidebar').addEventListener('click', function(e) {
         const clickedButton = e.target.closest('button');
         if (!clickedButton) return;
-
-        // Lista de IDs dos botões que iniciam o modo de seta.
         const arrowButtonIds = ['arrow-button', 'dashed-arrow-button'];
-
-        // Se o clique foi em um botão que NÃO é um dos de inserir seta...
         if (!arrowButtonIds.includes(clickedButton.id)) {
-            // ...e se o modo de seta estiver ativo, cancela-o.
             if (window.isDrawingArrow && typeof window.cancelArrowDrawing === 'function') {
                 window.cancelArrowDrawing();
             }
         }
     });
 
+    // --- Nova Função Central para Adicionar Objetos ao Canvas ---
+    window.addObjectToCanvas = function(obj) {
+        if (!obj) return;
+        canvas.add(obj).setActiveObject(obj);
+        canvas.renderAll();
+        if (window.updateAllHierarchyNumbers) {
+            window.updateAllHierarchyNumbers();
+        }
+    }
 
+    function handleDropOnCanvas(e) {
+        e.preventDefault();
+        const dataType = e.dataTransfer.getData('data-type');
+        if (!dataType) return;
+
+        const canvasRect = canvas.upperCanvasEl.getBoundingClientRect();
+        const dropCoords = {
+            x: e.clientX - canvasRect.left,
+            y: e.clientY - canvasRect.top
+        };
+
+        let newObject = null;
+
+        switch (dataType) {
+            case 'subject':
+                window.createSubject(dropCoords);
+                break;
+            case 'content':
+                window.openContentModal(dropCoords);
+                break;
+            case 'start':
+            case 'end':
+                newObject = window.createStartEndNode({ coords: dropCoords, type: dataType });
+                break;
+            case 'trilha':
+                window.openTrilhaModal(dropCoords);
+                break;
+            case 'exclusive_gateway':
+            case 'parallel_gateway':
+            case 'inclusive_gateway':
+                newObject = window.createGatewayNode({ coords: dropCoords, type: dataType });
+                break;
+        }
+
+        if (newObject) {
+            window.addObjectToCanvas(newObject);
+        }
+    }
+
+    // --- Outras Funções do Canvas ---
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {

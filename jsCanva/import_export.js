@@ -1,8 +1,5 @@
 document.getElementById("export-button").addEventListener("click", () => {
-    // Pega o título do diagrama do novo campo de input
     const diagramTitle = document.getElementById('diagram-title-input').value || "Diagrama sem título";
-    
-    // Adiciona o título ao objeto de dados a ser salvo
     const data = { 
         diagramTitle: diagramTitle, 
         diagramObjects: [], 
@@ -11,11 +8,9 @@ document.getElementById("export-button").addEventListener("click", () => {
 
     canvas.getObjects().forEach(obj => {
         let objData = {};
-
         if (obj.type === 'box') {
             const textObj = obj._objects.find(o => o.type === 'textbox' && !o.isHierarchyNumber);
             const rectObj = obj._objects.find(o => o.type === 'rect');
-            
             objData = {
                 type: 'box', customType: obj.customType, id: obj.objectId,
                 left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY, angle: obj.angle,
@@ -23,14 +18,9 @@ document.getElementById("export-button").addEventListener("click", () => {
                 fill: rectObj.fill, stroke: rectObj.stroke, strokeWidth: rectObj.strokeWidth,
                 strokeDashArray: rectObj.strokeDashArray, hierarchyNumber: obj.hierarchyNumber
             };
-
-            if (obj.customType === 'subject') {
-                objData.childrenIds = obj.childrenIds;
-            } else if (obj.customType === 'content') {
-                objData.parentId = obj.parentId; objData.contentId = obj.contentId; objData.fullText = obj.fullText;
-            } else if (obj.customType === 'trilha') {
-                objData.trilhaId = obj.trilhaId;
-            }
+            if (obj.customType === 'subject') { objData.childrenIds = obj.childrenIds; } 
+            else if (obj.customType === 'content') { objData.parentId = obj.parentId; objData.contentId = obj.contentId; objData.fullText = obj.fullText; }
+            else if (obj.customType === 'trilha') { objData.trilhaId = obj.trilhaId; }
             data.diagramObjects.push(objData);
 
         } else if (obj.type === 'node') {
@@ -48,7 +38,7 @@ document.getElementById("export-button").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `${diagramTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`; // Nome do arquivo dinâmico
+    a.download = `${diagramTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -65,8 +55,6 @@ document.getElementById("import-button").addEventListener("click", () => {
         const data = JSON.parse(content);
 
         canvas.clear();
-
-        // Carrega o título do diagrama para o campo de input
         const diagramTitleInput = document.getElementById('diagram-title-input');
         if (data.diagramTitle) {
             diagramTitleInput.value = data.diagramTitle;
@@ -100,13 +88,16 @@ document.getElementById("import-button").addEventListener("click", () => {
                 newObj = new fabric.Group([rect, text, numberText], objectOptions);
             
             } else if (objData.type === 'node') {
-                const nodeOptions = { ...objectOptions, originX: 'center', originY: 'center' };
-                if (objData.customType === 'start') {
-                    newObj = new fabric.Circle({ ...nodeOptions, radius: 15, fill: 'black' });
-                } else { // 'end'
-                    const innerCircle = new fabric.Circle({ radius: 12, fill: 'black', originX: 'center', originY: 'center' });
-                    const outerCircle = new fabric.Circle({ radius: 18, fill: 'transparent', stroke: 'black', strokeWidth: 2, strokeDashArray: [5, 3], originX: 'center', originY: 'center' });
-                    newObj = new fabric.Group([outerCircle, innerCircle], nodeOptions);
+                switch(objData.customType) {
+                    case 'start':
+                    case 'end':
+                        newObj = window.createStartEndNode(objectOptions);
+                        break;
+                    case 'exclusive_gateway':
+                    case 'parallel_gateway':
+                    case 'inclusive_gateway':
+                        newObj = window.createGatewayNode(objectOptions);
+                        break;
                 }
             }
 
