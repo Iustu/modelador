@@ -82,7 +82,6 @@ function validateSubjectNode(subject, incoming, outgoing, objectMap) {
         errors.push(`Beco sem saída: O Assunto "${subjectText}" não possui nenhuma seta de saída.`);
     }
 
-    // VERIFICAÇÃO DE FALTA DE CONTEÚDO: Um assunto deve ter ao menos uma seta de saída para um conteúdo.
     const hasContentConnection = outgoing.some(a => objectMap.get(a.to)?.customType === 'content');
     if (!hasContentConnection) {
         errors.push(`O Assunto "${subjectText}" deve estar conectado a pelo menos um Conteúdo.`);
@@ -91,6 +90,11 @@ function validateSubjectNode(subject, incoming, outgoing, objectMap) {
     const outgoingDashed = outgoing.filter(a => a.tipo === 'tracejada');
     if (outgoingDashed.length > 1) {
         errors.push(`Regra violada: O Assunto "${subjectText}" não pode ter mais de uma seta tracejada.`);
+    }
+
+    // NOVA REGRA: Se um Assunto se conecta a um Conteúdo, a seta inicial deve ser tracejada.
+    if (hasContentConnection && outgoingDashed.length === 0) {
+        errors.push(`Início de cadeia inválido: O Assunto "${subjectText}" se conecta a Conteúdos, mas não possui a seta tracejada obrigatória.`);
     }
 
     const ambiguousOutgoing = outgoing.filter(a => {

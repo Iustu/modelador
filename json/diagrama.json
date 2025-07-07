@@ -1,64 +1,164 @@
 {
-  "boxes": [
+  "diagramObjects": [
     {
-      "id": "obj-wrpxm04h6",
-      "left": 102,
-      "top": 95,
+      "type": "node",
+      "customType": "start",
+      "id": "obj-xjjgsixte",
+      "left": 235,
+      "top": 108,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    {
+      "type": "box",
+      "customType": "subject",
+      "id": "obj-5a7we0p37",
+      "left": 167,
+      "top": 203,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
-      "text": "sdfs",
+      "text": "asas",
       "fill": "#f1c40f",
-      "customType": "subject",
       "hierarchyNumber": "1",
       "childrenIds": [
-        "obj-herf63iep",
-        "obj-ic4q58sfu"
+        "obj-xny7qyqo2"
       ]
     },
     {
-      "id": "obj-herf63iep",
-      "left": 257,
-      "top": 298,
+      "type": "box",
+      "customType": "subject",
+      "id": "obj-mo2qyqjf1",
+      "left": 150,
+      "top": 352,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "asdad",
+      "fill": "#f1c40f",
+      "hierarchyNumber": "2",
+      "childrenIds": [
+        "obj-3knmvh4fg"
+      ]
+    },
+    {
+      "type": "node",
+      "customType": "end",
+      "id": "obj-9yq0pgipc",
+      "left": 210,
+      "top": 698,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    {
+      "type": "box",
+      "customType": "content",
+      "id": "obj-xny7qyqo2",
+      "left": 434,
+      "top": 200,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Introdução à Lógica e Algoritmos",
       "fill": "#3498db",
-      "customType": "content",
       "hierarchyNumber": "1.1",
-      "parentId": "obj-wrpxm04h6",
+      "parentId": "obj-5a7we0p37",
       "contentId": "alg-01",
       "fullText": "Um algoritmo é uma sequência finita de passos lógicos para resolver um problema. Em programação, usamos linguagens como C para escrever esses passos de forma que o computador possa entendê-los. A lógica de programação é a base para organizar esses passos de maneira eficiente e correta."
     },
     {
-      "id": "obj-ic4q58sfu",
-      "left": 287,
-      "top": 566,
+      "type": "box",
+      "customType": "subject",
+      "id": "obj-wi6dcbmhm",
+      "left": 158,
+      "top": 513,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "wqeqew",
+      "fill": "#f1c40f",
+      "hierarchyNumber": "3",
+      "childrenIds": [
+        "obj-7lgww80w5"
+      ]
+    },
+    {
+      "type": "box",
+      "customType": "content",
+      "id": "obj-3knmvh4fg",
+      "left": 429,
+      "top": 350,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Estruturas Condicionais (if/else)",
+      "fill": "#3498db",
+      "hierarchyNumber": "2.1",
+      "parentId": "obj-mo2qyqjf1",
+      "contentId": "alg-03",
+      "fullText": "A lógica de um algoritmo frequentemente depende de condições. A estrutura 'if' (se) permite executar um bloco de código apenas se uma condição for verdadeira. O 'else' (senão) fornece um caminho alternativo para quando a condição for falsa. Exemplo: if (idade >= 18) { ... } else { ... }"
+    },
+    {
+      "type": "box",
+      "customType": "content",
+      "id": "obj-7lgww80w5",
+      "left": 436,
+      "top": 539,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
       "text": "Estruturas de Repetição (Loops)",
       "fill": "#3498db",
-      "customType": "content",
-      "hierarchyNumber": "1.2",
-      "parentId": "obj-wrpxm04h6",
+      "hierarchyNumber": "3.1",
+      "parentId": "obj-wi6dcbmhm",
       "contentId": "alg-04",
       "fullText": "Loops são usados para repetir um bloco de código várias vezes. O loop 'for' é ideal quando sabemos o número de repetições. O loop 'while' (enquanto) continua executando enquanto uma condição for verdadeira. São fundamentais para processar listas de dados ou executar tarefas repetitivas."
     }
   ],
   "arrows": [
     {
-      "from": "obj-wrpxm04h6",
-      "to": "obj-herf63iep",
+      "from": "obj-xjjgsixte",
+      "to": "obj-5a7we0p37",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    },
+    {
+      "from": "obj-5a7we0p37",
+      "to": "obj-mo2qyqjf1",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    },
+    {
+      "from": "obj-mo2qyqjf1",
+      "to": "obj-wi6dcbmhm",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    },
+    {
+      "from": "obj-wi6dcbmhm",
+      "to": "obj-9yq0pgipc",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    },
+    {
+      "from": "obj-5a7we0p37",
+      "to": "obj-xny7qyqo2",
       "arrowSubType": "standard",
       "tipo": "tracejada"
     },
     {
-      "from": "obj-herf63iep",
-      "to": "obj-ic4q58sfu",
+      "from": "obj-mo2qyqjf1",
+      "to": "obj-3knmvh4fg",
       "arrowSubType": "standard",
-      "tipo": "continua"
+      "tipo": "tracejada"
+    },
+    {
+      "from": "obj-wi6dcbmhm",
+      "to": "obj-7lgww80w5",
+      "arrowSubType": "standard",
+      "tipo": "tracejada"
     }
   ]
 }

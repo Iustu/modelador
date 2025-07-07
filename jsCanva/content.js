@@ -52,11 +52,22 @@ document.addEventListener('DOMContentLoaded', function() {
             originX: 'center',
             originY: 'center',
             selectable: true,
-            hasControls: false, // Nós simples não precisam de controles de redimensionamento
+            hasControls: false,
             objectId: generateId(),
         };
-
+    
+        // A lógica foi INVERTIDA aqui.
         if (options.type === 'start') {
+            // O NÓ DE INÍCIO agora é a bola preta sólida.
+            node = new fabric.Circle({
+                ...commonOptions,
+                radius: 15,
+                fill: 'black',
+                customType: 'start',
+                type: 'node'
+            });
+        } else { // type === 'end'
+            // O NÓ DE FIM agora tem o centro preto e a borda tracejada.
             const innerCircle = new fabric.Circle({
                 radius: 12,
                 fill: 'black',
@@ -74,14 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             node = new fabric.Group([outerCircle, innerCircle], {
                 ...commonOptions,
-                customType: 'start',
-                type: 'node'
-            });
-        } else { // type === 'end'
-            node = new fabric.Circle({
-                ...commonOptions,
-                radius: 15,
-                fill: 'black',
                 customType: 'end',
                 type: 'node'
             });

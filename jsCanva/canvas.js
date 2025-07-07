@@ -30,10 +30,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Listener para cancelar o modo de seta ao clicar em outros botões da sidebar.
     document.querySelector('.sidebar').addEventListener('click', function(e) {
-        const targetIsButton = e.target.tagName === 'BUTTON' || e.target.closest('button');
-        if (targetIsButton && e.target.closest('button').id !== 'arrow-button') {
-            if (window.isDrawingArrow && typeof window.exitArrowDrawingMode === 'function') {
-                window.exitArrowDrawingMode();
+        const clickedButton = e.target.closest('button');
+        if (!clickedButton) return;
+
+        // Lista de IDs dos botões que iniciam o modo de seta.
+        const arrowButtonIds = ['arrow-button', 'dashed-arrow-button'];
+
+        // Se o clique foi em um botão que NÃO é um dos de inserir seta...
+        if (!arrowButtonIds.includes(clickedButton.id)) {
+            // ...e se o modo de seta estiver ativo, cancela-o.
+            if (window.isDrawingArrow && typeof window.cancelArrowDrawing === 'function') {
+                window.cancelArrowDrawing();
             }
         }
     });

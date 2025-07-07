@@ -198,7 +198,7 @@ body {
     font-weight: bold;
 }
 
-/* ESTILOS PARA AS FORMAS DE INÍCIO E FIM NA SIDEBAR */
+/* ESTILOS PARA AS FORMAS DE INÍCIO E FIM NA SIDEBAR (LÓGICA INVERTIDA) */
 .shape.node-shape {
     background-color: #f8f9fa;
     border: 1px dashed #6c757d;
@@ -209,8 +209,16 @@ body {
     gap: 8px;
 }
 
-/* Regra para o círculo externo do nó de Início */
+/* O NÓ DE INÍCIO agora é a bola preta sólida. */
 .start-node-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+/* O NÓ DE FIM agora é o círculo com borda tracejada. */
+.end-node-icon {
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -220,22 +228,15 @@ body {
     justify-content: center;
 }
 
-/* Regra para o círculo interno preto do nó de Início */
-.start-node-icon-inner {
+.end-node-icon-inner {
     width: 14px;
     height: 14px;
     border-radius: 50%;
     background-color: black;
 }
 
-/* A regra para o nó de Fim permanece a mesma */
-.end-node-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: black;
-}
 
+/* Adiciona um estilo para o botão quando estiver no modo de inserção de seta */
 .sidebar button.active {
     background-color: #2980b9; /* Um azul mais escuro para indicar o estado ativo */
     color: #ffffff;

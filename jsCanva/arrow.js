@@ -1,56 +1,55 @@
 window.isDrawingArrow = false;
+window.arrowTypeToDraw = null; 
 window.arrowStartObject = null;
 
-function exitArrowDrawingMode() {
-    window.isDrawingArrow = false;
-    window.arrowStartObject = null;
-    document.getElementById('arrow-button').classList.remove('active');
-    canvas.renderAll();
-}
-
-function enterArrowDrawingMode() {
-    if(window.isDrawingArrow) {
-        exitArrowDrawingMode();
-    }
+// Listener para o botão de seta contínua
+document.getElementById('arrow-button').addEventListener('click', (e) => {
+    document.getElementById('dashed-arrow-button').classList.remove('active');
+    e.currentTarget.classList.add('active');
     window.isDrawingArrow = true;
+    window.arrowTypeToDraw = 'continua';
     window.arrowStartObject = null;
-    document.getElementById('arrow-button').classList.add('active');
-}
+});
 
-window.exitArrowDrawingMode = exitArrowDrawingMode;
+// Listener para o botão de seta tracejada
+document.getElementById('dashed-arrow-button').addEventListener('click', (e) => {
+    document.getElementById('arrow-button').classList.remove('active');
+    e.currentTarget.classList.add('active');
+    window.isDrawingArrow = true;
+    window.arrowTypeToDraw = 'tracejada';
+    window.arrowStartObject = null;
+});
 
-document.getElementById('arrow-button').addEventListener('click', enterArrowDrawingMode);
-
+// Manipulador de clique para criar a seta no canvas
 window.handleMouseDownForArrow = function (e) {
     if (!window.isDrawingArrow) return;
 
-    // CORREÇÃO: Permite que a criação de setas se inicie a partir de 'box' (Assunto/Conteúdo) ou 'node' (Início/Fim).
     if (e.target && (e.target.type === 'box' || e.target.type === 'node')) {
         if (!window.arrowStartObject) {
             window.arrowStartObject = e.target;
         } else {
             const endBox = e.target;
             if (window.arrowStartObject.objectId !== endBox.objectId) {
-                const startObj = window.arrowStartObject;
-                const startType = startObj.customType;
-                const endType = endBox.customType;
-                let arrowType;
-
-                if (startType === 'subject' && endType === 'content') {
-                    arrowType = 'tracejada';
-                } else {
-                    arrowType = 'continua';
-                }
-
-                window.createStandardArrow(startObj, endBox, arrowType);
+                window.createStandardArrow(window.arrowStartObject, endBox, window.arrowTypeToDraw);
             }
-            exitArrowDrawingMode();
+            window.cancelArrowDrawing();
         }
     } else {
-        exitArrowDrawingMode();
+        window.cancelArrowDrawing();
     }
 };
 
+// Cancela o modo de desenho de seta e remove o estado ativo dos botões.
+window.cancelArrowDrawing = function() {
+    document.getElementById('arrow-button').classList.remove('active');
+    document.getElementById('dashed-arrow-button').classList.remove('active');
+    window.isDrawingArrow = false;
+    window.arrowStartObject = null;
+    window.arrowTypeToDraw = null;
+    canvas.discardActiveObject().renderAll();
+}
+
+// A função updateParentChildRelationship é mantida para popular a lista de filhos.
 function updateParentChildRelationship(startObj, endObj) {
     if (endObj.customType !== 'content') return;
     let subject = null;
@@ -60,10 +59,8 @@ function updateParentChildRelationship(startObj, endObj) {
         subject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
     }
     if (subject && typeof window.rebuildChildrenList === 'function') {
-        setTimeout(() => {
-            window.rebuildChildrenList(subject);
-            window.updateAllHierarchyNumbers();
-        }, 0);
+        // O setTimeout é removido pois a chamada global já cuidará da ordem.
+        window.rebuildChildrenList(subject);
     }
 }
 
@@ -91,7 +88,11 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
 
     canvas.add(arrow).setActiveObject(arrow);
     
+    // CORREÇÃO: A atualização da hierarquia agora é chamada sempre.
     updateParentChildRelationship(startObj, endObj);
+    if (window.updateAllHierarchyNumbers) {
+        window.updateAllHierarchyNumbers();
+    }
 };
 
 window.updateArrowsForObject = function(movedObj) {
