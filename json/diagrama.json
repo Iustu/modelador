@@ -1,51 +1,23 @@
 {
+  "diagramTitle": "Teste",
   "diagramObjects": [
     {
       "type": "box",
       "customType": "trilha",
-      "id": "obj-sing9krmx",
-      "left": 418,
-      "top": 173,
+      "id": "obj-cih4j3g7t",
+      "left": 193,
+      "top": 228,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
-      "text": "Desenvolvimento Back-End com Node.js",
+      "text": "Desenvolvimento Front-End Essencial",
       "textColor": "#ffffff",
       "fill": "#009c3b",
+      "stroke": "black",
+      "strokeWidth": 2,
+      "strokeDashArray": null,
       "hierarchyNumber": "",
-      "trilhaId": "trilha-backend"
-    },
-    {
-      "type": "box",
-      "customType": "subject",
-      "id": "obj-sitil89jm",
-      "left": 430,
-      "top": 426,
-      "scaleX": 1,
-      "scaleY": 1,
-      "angle": 0,
-      "text": "aa",
-      "textColor": "#ffffff",
-      "fill": "#f1c40f",
-      "hierarchyNumber": "",
-      "childrenIds": []
-    },
-    {
-      "type": "box",
-      "customType": "content",
-      "id": "obj-8q1xb4z5g",
-      "left": 230,
-      "top": 454,
-      "scaleX": 1,
-      "scaleY": 1,
-      "angle": 0,
-      "text": "Estruturas Condicionais (if/else)",
-      "textColor": "#ffffff",
-      "fill": "#3498db",
-      "hierarchyNumber": "",
-      "parentId": null,
-      "contentId": "alg-03",
-      "fullText": "A lógica de um algoritmo frequentemente depende de condições. A estrutura 'if' (se) permite executar um bloco de código apenas se uma condição for verdadeira. O 'else' (senão) fornece um caminho alternativo para quando a condição for falsa. Exemplo: if (idade >= 18) { ... } else { ... }"
+      "trilhaId": "trilha-frontend"
     }
   ],
   "arrows": []

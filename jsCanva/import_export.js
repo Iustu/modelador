@@ -1,5 +1,13 @@
 document.getElementById("export-button").addEventListener("click", () => {
-    const data = { diagramObjects: [], arrows: [] };
+    // Pega o título do diagrama do novo campo de input
+    const diagramTitle = document.getElementById('diagram-title-input').value || "Diagrama sem título";
+    
+    // Adiciona o título ao objeto de dados a ser salvo
+    const data = { 
+        diagramTitle: diagramTitle, 
+        diagramObjects: [], 
+        arrows: [] 
+    };
 
     canvas.getObjects().forEach(obj => {
         let objData = {};
@@ -9,30 +17,17 @@ document.getElementById("export-button").addEventListener("click", () => {
             const rectObj = obj._objects.find(o => o.type === 'rect');
             
             objData = {
-                type: 'box',
-                customType: obj.customType,
-                id: obj.objectId,
-                left: obj.left,
-                top: obj.top,
-                scaleX: obj.scaleX,
-                scaleY: obj.scaleY,
-                angle: obj.angle,
-                text: textObj ? textObj.text : "",
-                textColor: textObj ? textObj.fill : "#000000",
-                fill: rectObj.fill,
-                // Salva as propriedades da borda
-                stroke: rectObj.stroke,
-                strokeWidth: rectObj.strokeWidth,
-                strokeDashArray: rectObj.strokeDashArray,
-                hierarchyNumber: obj.hierarchyNumber
+                type: 'box', customType: obj.customType, id: obj.objectId,
+                left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY, angle: obj.angle,
+                text: textObj ? textObj.text : "", textColor: textObj ? textObj.fill : "#000000",
+                fill: rectObj.fill, stroke: rectObj.stroke, strokeWidth: rectObj.strokeWidth,
+                strokeDashArray: rectObj.strokeDashArray, hierarchyNumber: obj.hierarchyNumber
             };
 
             if (obj.customType === 'subject') {
                 objData.childrenIds = obj.childrenIds;
             } else if (obj.customType === 'content') {
-                objData.parentId = obj.parentId;
-                objData.contentId = obj.contentId;
-                objData.fullText = obj.fullText;
+                objData.parentId = obj.parentId; objData.contentId = obj.contentId; objData.fullText = obj.fullText;
             } else if (obj.customType === 'trilha') {
                 objData.trilhaId = obj.trilhaId;
             }
@@ -53,7 +48,7 @@ document.getElementById("export-button").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "diagrama.json";
+    a.download = `${diagramTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`; // Nome do arquivo dinâmico
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -70,8 +65,16 @@ document.getElementById("import-button").addEventListener("click", () => {
         const data = JSON.parse(content);
 
         canvas.clear();
-        const idToObjectMap = {};
 
+        // Carrega o título do diagrama para o campo de input
+        const diagramTitleInput = document.getElementById('diagram-title-input');
+        if (data.diagramTitle) {
+            diagramTitleInput.value = data.diagramTitle;
+        } else {
+            diagramTitleInput.value = "";
+        }
+
+        const idToObjectMap = {};
         const objectsToLoad = data.diagramObjects || data.boxes || [];
 
         objectsToLoad.forEach(objData => {
@@ -79,29 +82,21 @@ document.getElementById("import-button").addEventListener("click", () => {
             const objectOptions = { ...objData, objectId: objData.id };
 
             if (objData.type === 'box') {
-                const rectWidth = 140;
-                const rectHeight = 60;
                 const rect = new fabric.Rect({
-                    width: rectWidth, height: rectHeight, fill: objData.fill, rx: 5, ry: 5,
-                    originX: 'center', originY: 'center',
-                    // Restaura as propriedades da borda
-                    stroke: objData.stroke,
-                    strokeWidth: objData.strokeWidth,
-                    strokeDashArray: objData.strokeDashArray
+                    width: 140, height: 60, fill: objData.fill, rx: 5, ry: 5,
+                    originX: 'center', originY: 'center', stroke: objData.stroke,
+                    strokeWidth: objData.strokeWidth, strokeDashArray: objData.strokeDashArray
                 });
-                
                 const textColor = objData.textColor || '#000000';
                 const text = new fabric.Textbox(objData.text, {
                     width: 120, fontSize: 16, textAlign: 'center',
                     fill: textColor, originX: 'center', originY: 'center'
                 });
-
                 const numberText = new fabric.Text(objData.hierarchyNumber || '', {
                     fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
                     isHierarchyNumber: true, originX: 'left', originY: 'top',
-                    left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
+                    left: -70 + 5, top: -30 + 5
                 });
-                
                 newObj = new fabric.Group([rect, text, numberText], objectOptions);
             
             } else if (objData.type === 'node') {
