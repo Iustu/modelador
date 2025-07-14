@@ -1,0 +1,112 @@
+{
+  "diagramTitle": "Diagrama sem título",
+  "diagramObjects": [
+    {
+      "type": "node",
+      "customType": "start",
+      "id": "obj-bgo5mvfg1",
+      "left": 283,
+      "top": 50.25,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    {
+      "type": "box",
+      "customType": "content",
+      "id": "obj-jg31szi0u",
+      "left": 484,
+      "top": 357.25,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Introdução à Lógica e Algoritmos",
+      "textColor": "#ffffff",
+      "fill": "#3498db",
+      "stroke": null,
+      "strokeWidth": 1,
+      "strokeDashArray": null,
+      "hierarchyNumber": "",
+      "parentId": "obj-ojhk245p7",
+      "contentId": "alg-01",
+      "fullText": "Um algoritmo é uma sequência finita de passos lógicos para resolver um problema. Em programação, usamos linguagens como C para escrever esses passos de forma que o computador possa entendê-los. A lógica de programação é a base para organizar esses passos de maneira eficiente e correta."
+    },
+    {
+      "type": "box",
+      "customType": "trilha",
+      "id": "obj-33zbg2wx3",
+      "left": 212,
+      "top": 158.25,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Desenvolvimento Front-End Essencial",
+      "textColor": "#ffffff",
+      "fill": "#009c3b",
+      "stroke": "black",
+      "strokeWidth": 2,
+      "strokeDashArray": null,
+      "hierarchyNumber": "",
+      "trilhaId": "trilha-frontend"
+    },
+    {
+      "type": "box",
+      "customType": "subject",
+      "id": "obj-ojhk245p7",
+      "left": 211,
+      "top": 352.25,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "text": "Programação em C",
+      "textColor": "#000000",
+      "fill": "#f1c40f",
+      "stroke": "black",
+      "strokeWidth": 2,
+      "strokeDashArray": [
+        8,
+        4
+      ],
+      "hierarchyNumber": "",
+      "childrenIds": [
+        "obj-jg31szi0u"
+      ]
+    },
+    {
+      "type": "node",
+      "customType": "end",
+      "id": "obj-brqfd8qry",
+      "left": 267,
+      "top": 563.25,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    }
+  ],
+  "arrows": [
+    {
+      "from": "obj-bgo5mvfg1",
+      "to": "obj-33zbg2wx3",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    },
+    {
+      "from": "obj-33zbg2wx3",
+      "to": "obj-ojhk245p7",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    },
+    {
+      "from": "obj-ojhk245p7",
+      "to": "obj-jg31szi0u",
+      "arrowSubType": "standard",
+      "tipo": "tracejada"
+    },
+    {
+      "from": "obj-ojhk245p7",
+      "to": "obj-brqfd8qry",
+      "arrowSubType": "standard",
+      "tipo": "continua"
+    }
+  ]
+}
