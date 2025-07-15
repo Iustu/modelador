@@ -11,7 +11,6 @@ function validateDiagram() {
 
     const objectMap = new Map(allDiagramObjects.map(o => [o.objectId, o]));
 
-    // Itera sobre cada elemento do diagrama e aplica as regras específicas para seu tipo.
     allDiagramObjects.forEach(obj => {
         const incoming = arrows.filter(a => a.to === obj.objectId);
         const outgoing = arrows.filter(a => a.from === obj.objectId);
@@ -32,7 +31,6 @@ function validateDiagram() {
         }
     });
 
-    // Validações genéricas que não dependem do tipo do nó.
     errors.push(...checkOrphanedTrails(allDiagramObjects, arrows, objectMap));
     errors.push(...checkDuplicateConnections(arrows, objectMap));
 
@@ -44,7 +42,6 @@ function validateDiagram() {
     }
 }
 
-// Valida as regras para um nó de INÍCIO.
 function validateStartNode(node, incoming, outgoing, objectMap) {
     const errors = [];
     if (incoming.length > 0) {
@@ -61,7 +58,6 @@ function validateStartNode(node, incoming, outgoing, objectMap) {
     return errors;
 }
 
-// Valida as regras para um nó de FIM.
 function validateEndNode(node, incoming, outgoing) {
     const errors = [];
     if (outgoing.length > 0) {
@@ -73,7 +69,6 @@ function validateEndNode(node, incoming, outgoing) {
     return errors;
 }
 
-// Valida as regras para um ASSUNTO.
 function validateSubjectNode(subject, incoming, outgoing, objectMap) {
     const errors = [];
     const subjectText = subject._objects.find(o => o.type === 'textbox').text;
@@ -87,14 +82,13 @@ function validateSubjectNode(subject, incoming, outgoing, objectMap) {
         errors.push(`O Assunto "${subjectText}" deve estar conectado a pelo menos um Conteúdo.`);
     }
 
-    const outgoingDashed = outgoing.filter(a => a.tipo === 'tracejada');
-    if (outgoingDashed.length > 1) {
-        errors.push(`Regra violada: O Assunto "${subjectText}" não pode ter mais de uma seta tracejada.`);
+    const outgoingHierarchyArrows = outgoing.filter(a => a.isHierarchy === true);
+    if (outgoingHierarchyArrows.length > 1) {
+        errors.push(`Regra violada: O Assunto "${subjectText}" não pode ter mais de uma seta hierárquica (tracejada).`);
     }
 
-    // NOVA REGRA: Se um Assunto se conecta a um Conteúdo, a seta inicial deve ser tracejada.
-    if (hasContentConnection && outgoingDashed.length === 0) {
-        errors.push(`Início de cadeia inválido: O Assunto "${subjectText}" se conecta a Conteúdos, mas não possui a seta tracejada obrigatória.`);
+    if (hasContentConnection && outgoingHierarchyArrows.length === 0) {
+        errors.push(`Início de cadeia inválido: O Assunto "${subjectText}" se conecta a Conteúdos, mas não possui a seta hierárquica (tracejada) obrigatória.`);
     }
 
     const ambiguousOutgoing = outgoing.filter(a => {
@@ -108,7 +102,6 @@ function validateSubjectNode(subject, incoming, outgoing, objectMap) {
     return errors;
 }
 
-// Valida as regras para um CONTEÚDO.
 function validateContentNode(content, incoming, outgoing, objectMap) {
     const errors = [];
     const contentText = content._objects.find(o => o.type === 'textbox').text;
@@ -130,7 +123,6 @@ function validateContentNode(content, incoming, outgoing, objectMap) {
     return errors;
 }
 
-// Verifica se todos os Assuntos e Conteúdos são alcançáveis a partir de um nó de Início.
 function checkOrphanedTrails(allDiagramObjects, arrows, objectMap) {
     const errors = [];
     const startNodes = allDiagramObjects.filter(o => o.customType === 'start');
@@ -173,7 +165,6 @@ function checkOrphanedTrails(allDiagramObjects, arrows, objectMap) {
     return errors;
 }
 
-// Verifica se existem setas duplicadas.
 function checkDuplicateConnections(arrows, objectMap) {
     const errors = [];
     const existingConnections = new Set();

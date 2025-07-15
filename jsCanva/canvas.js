@@ -1,3 +1,5 @@
+/* ARQUIVO: jsCanva/canvas.js */
+
 document.addEventListener('DOMContentLoaded', function () {
     const canvasWrapper = document.querySelector('.canvas-wrapper');
     window.canvas = new fabric.Canvas('canvas');
@@ -7,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // --- Configuração Central de Eventos do Canvas ---
     canvas.upperCanvasEl.addEventListener('dragover', e => e.preventDefault());
-    canvas.upperCanvasEl.addEventListener('drop', handleDropOnCanvas); // Centraliza o evento de drop aqui
+    canvas.upperCanvasEl.addEventListener('drop', handleDropOnCanvas);
     canvas.on('mouse:down', window.handleMouseDownForArrow);
     canvas.on('object:modified', e => {
         if (e.target && (e.target.type === 'box' || e.target.type === 'node')) {
@@ -40,11 +42,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!obj) return;
         canvas.add(obj).setActiveObject(obj);
         canvas.renderAll();
-        if (window.updateAllHierarchyNumbers) {
-            window.updateAllHierarchyNumbers();
-        }
+        // CORREÇÃO: A chamada para a numeração foi REMOVIDA daqui.
     }
 
+    // --- Controlador de "Drop" Refatorado ---
     function handleDropOnCanvas(e) {
         e.preventDefault();
         const dataType = e.dataTransfer.getData('data-type');
@@ -57,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         let newObject = null;
-
         switch (dataType) {
             case 'subject':
                 window.createSubject(dropCoords);
@@ -78,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 newObject = window.createGatewayNode({ coords: dropCoords, type: dataType });
                 break;
         }
-
         if (newObject) {
             window.addObjectToCanvas(newObject);
         }
@@ -101,32 +100,32 @@ document.addEventListener('DOMContentLoaded', function () {
         canvas.renderAll();
     }
 
+    //Reconstrói a lista de filhos de um Assunto, agora seguindo as cadeias de conteúdo.
     function rebuildChildrenList(subject) {
         if (!subject || subject.customType !== 'subject') return;
+        
         const allObjects = canvas.getObjects();
-        const oldChildrenIds = new Set(subject.childrenIds);
+        const oldChildrenIds = new Set(subject.childrenIds || []);
         
         subject.childrenIds = [];
-        const q = [subject]; 
-        const visited = new Set([subject.objectId]);
+        const visitedInHierarchy = new Set();
+        
+        const chainStarters = allObjects.filter(o => 
+            o.type === 'arrow' && o.from === subject.objectId && o.isHierarchy
+        );
 
-        while (q.length > 0) {
-            const current = q.shift();
-            
-            const outgoingArrows = allObjects.filter(o => 
-                o.type === 'arrow' && (o.tipo === 'continua' || o.tipo === 'tracejada') && o.from === current.objectId
-            );
+        chainStarters.forEach(arrow => {
+            let current = allObjects.find(o => o.objectId === arrow.to);
+            while (current && !visitedInHierarchy.has(current.objectId)) {
+                visitedInHierarchy.add(current.objectId);
+                
+                subject.childrenIds.push(current.objectId);
+                current.parentId = subject.objectId;
 
-            for (const arrow of outgoingArrows) {
-                const childObj = allObjects.find(o => o.objectId === arrow.to);
-                if (childObj && childObj.customType === 'content' && !visited.has(childObj.objectId)) {
-                    visited.add(childObj.objectId);
-                    subject.childrenIds.push(childObj.objectId);
-                    childObj.parentId = subject.objectId;
-                    q.push(childObj);
-                }
+                const nextArrow = allObjects.find(a => a.type === 'arrow' && a.from === current.objectId && !a.isHierarchy);
+                current = nextArrow ? allObjects.find(o => o.objectId === nextArrow.to) : null;
             }
-        }
+        });
         
         oldChildrenIds.forEach(childId => {
             if (!subject.childrenIds.includes(childId)) {
@@ -139,58 +138,36 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     window.rebuildChildrenList = rebuildChildrenList;
     
+    //Lida com a exclusão de objetos e suas setas conectadas.
     function handleDelete() {
         const activeSelection = canvas.getActiveObject();
-        if (!activeSelection) {
-            alert("Nenhum item selecionado para excluir.");
-            return;
-        }
-        const objectsInSelection = activeSelection.type === 'activeSelection'
-            ? activeSelection.getObjects()
-            : [activeSelection];
-        if (objectsInSelection.length > 1) {
-            if (!confirm(`Você tem certeza que deseja excluir os ${objectsInSelection.length} itens selecionados?`)) {
-                return;
-            }
-        }
-        const subjectsToRevalidate = new Set();
+        if (!activeSelection) return;
+        const objectsInSelection = activeSelection.type === 'activeSelection' ? activeSelection.getObjects() : [activeSelection];
+        if (objectsInSelection.length > 1 && !confirm(`Excluir ${objectsInSelection.length} itens?`)) return;
+
+        const parentsToRevalidate = new Set();
         const allObjectsToRemove = new Set(objectsInSelection);
 
         objectsInSelection.forEach(selectedObj => {
-            let parentSubject = null;
+            if (selectedObj.parentId) {
+                const parentObj = canvas.getObjects().find(o => o.objectId === selectedObj.parentId);
+                if (parentObj) parentsToRevalidate.add(parentObj);
+            }
             if (selectedObj.type === 'box' || selectedObj.type === 'node') {
-                if (selectedObj.customType === 'subject') {
-                    parentSubject = selectedObj;
-                } else if (selectedObj.parentId) {
-                    parentSubject = canvas.getObjects().find(o => o.objectId === selectedObj.parentId);
-                }
                 canvas.getObjects().forEach(arrow => {
                     if (arrow.type === 'arrow' && (arrow.from === selectedObj.objectId || arrow.to === selectedObj.objectId)) {
                         allObjectsToRemove.add(arrow);
                     }
                 });
             }
-            else if (selectedObj.type === 'arrow' && selectedObj.from) {
-                const startObj = canvas.getObjects().find(o => o.objectId === selectedObj.from);
-                if (startObj) {
-                    if (startObj.customType === 'subject') {
-                        parentSubject = startObj;
-                    } else if (startObj.parentId) {
-                        parentSubject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
-                    }
-                }
-            }
-            if (parentSubject) {
-                subjectsToRevalidate.add(parentSubject);
-            }
         });
 
         allObjectsToRemove.forEach(obj => canvas.remove(obj));
         canvas.discardActiveObject();
 
-        subjectsToRevalidate.forEach(subject => {
-            if (!allObjectsToRemove.has(subject)) {
-                window.rebuildChildrenList(subject);
+        parentsToRevalidate.forEach(parent => {
+            if (!allObjectsToRemove.has(parent)) {
+                window.rebuildChildrenList(parent);
             }
         });
 

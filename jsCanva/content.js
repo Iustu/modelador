@@ -3,38 +3,21 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- Referências aos Elementos ---
     const contentModal = document.getElementById('content-modal');
-    const textInputModal = document.getElementById('text-input-modal');
     const trilhaSelectModal = document.getElementById('trilha-select-modal');
 
-    const contentList = document.getElementById('content-list');
-    const contentCloseButton = document.getElementById('modal-close-button');
-    const documentationView = document.getElementById('documentation-view');
-    const contentView = document.getElementById('content-view');
-    const documentationList = document.getElementById('documentation-list');
-    const contentViewTitle = document.getElementById('content-view-title');
-    const backButton = document.getElementById('modal-back-button');
-    
-    const trilhaList = document.getElementById('trilha-list');
-    const trilhaModalCloseButton = document.getElementById('trilha-modal-close-button');
-
-
-    // --- Lógica de Drag & Drop (Apenas a parte de 'dragstart') ---
+    // --- Lógica de Drag & Drop ---
     document.querySelectorAll('.shape[draggable="true"]').forEach(shape => {
         shape.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('data-type', e.target.dataset.type);
         });
     });
 
-    // --- Funções de Criação (refatoradas para retornar o objeto) ---
-
+    // --- Funções de Criação ---
     window.openTrilhaModal = function(coords) {
+        const trilhaList = document.getElementById('trilha-list');
         trilhaList.innerHTML = '';
         const usedTrilhaIds = new Set();
-        canvas.getObjects().forEach(obj => {
-            if (obj.trilhaId) {
-                usedTrilhaIds.add(obj.trilhaId);
-            }
-        });
+        canvas.getObjects().forEach(obj => { if (obj.trilhaId) usedTrilhaIds.add(obj.trilhaId) });
         const availableTrilhas = window.backendData.trilhas.filter(t => !usedTrilhaIds.has(t.id));
 
         if (availableTrilhas.length === 0) {
@@ -52,36 +35,35 @@ document.addEventListener('DOMContentLoaded', function() {
         trilhaSelectModal.style.display = 'flex';
 
         trilhaList.onclick = function(e) {
-            if (e.target && e.target.nodeName === "LI") {
+            if (e.target.nodeName === "LI") {
                 const trilhaId = e.target.dataset.trilhaId;
                 const selectedTrilha = window.backendData.trilhas.find(t => t.id === trilhaId);
                 const box = createBox({
-                    coords: coords,
-                    color: '#009c3b',
-                    text: selectedTrilha.titulo,
-                    customType: 'trilha',
-                    trilhaId: selectedTrilha.id
+                    coords: coords, color: '#009c3b', text: selectedTrilha.titulo,
+                    customType: 'trilha', trilhaId: selectedTrilha.id
                 });
-                window.addObjectToCanvas(box); // Usa a nova função central
+                window.addObjectToCanvas(box);
                 trilhaSelectModal.style.display = 'none';
             }
         };
-    }
+    };
 
     window.createSubject = function(coords) {
         const userText = prompt("Digite o título para o Assunto:", "");
         if (userText && userText.trim() !== "") {
             const box = createBox({
-                coords: coords,
-                color: '#f1c40f',
-                text: userText,
-                customType: 'subject'
+                coords: coords, color: '#f1c40f', text: userText, customType: 'subject'
             });
-            window.addObjectToCanvas(box); // Usa a nova função central
+            window.addObjectToCanvas(box);
         }
     };
 
     window.openContentModal = function(coords) {
+        const documentationList = document.getElementById('documentation-list');
+        const contentList = document.getElementById('content-list');
+        const contentView = document.getElementById('content-view');
+        const documentationView = document.getElementById('documentation-view');
+        
         documentationList.innerHTML = '';
         contentList.innerHTML = '';
         contentView.style.display = 'none';
@@ -97,43 +79,37 @@ document.addEventListener('DOMContentLoaded', function() {
         contentModal.style.display = 'flex';
 
         documentationList.onclick = function(e) {
-            if (e.target && e.target.nodeName === "LI") {
+            if (e.target.nodeName === "LI") {
                 const docId = e.target.dataset.docId;
                 const selectedDoc = window.backendData.documentacoes.find(d => d.id === docId);
-                if (selectedDoc) {
-                    showContentView(selectedDoc);
-                }
+                if (selectedDoc) showContentView(selectedDoc);
             }
         };
         
         contentList.onclick = function(e) {
-            if (e.target && e.target.nodeName === "LI") {
+            if (e.target.nodeName === "LI") {
                 const selectedId = e.target.dataset.contentId;
                 const docId = e.target.dataset.docId;
                 const selectedDoc = window.backendData.documentacoes.find(d => d.id === docId);
                 const selectedContent = selectedDoc.conteudos.find(c => c.id === selectedId);
                 const box = createBox({
-                    coords: coords,
-                    color: '#3498db',
-                    text: selectedContent.título,
-                    customType: 'content',
-                    contentId: selectedContent.id,
-                    fullText: selectedContent.texto
+                    coords: coords, color: '#3498db', text: selectedContent.título,
+                    customType: 'content', contentId: selectedContent.id, fullText: selectedContent.texto
                 });
-                window.addObjectToCanvas(box); // Usa a nova função central
+                window.addObjectToCanvas(box);
                 contentModal.style.display = 'none';
             }
         };
 
-        backButton.onclick = function() {
-            contentView.style.display = 'none';
-            documentationView.style.display = 'block';
-        };
-
         function showContentView(doc) {
+            const contentList = document.getElementById('content-list');
+            const documentationView = document.getElementById('documentation-view');
+            const contentView = document.getElementById('content-view');
+            const contentViewTitle = document.getElementById('content-view-title');
+            
             contentList.innerHTML = '';
             const usedContentIds = new Set();
-            canvas.getObjects().forEach(obj => { if (obj.contentId) { usedContentIds.add(obj.contentId); } });
+            canvas.getObjects().forEach(obj => { if (obj.contentId) usedContentIds.add(obj.contentId) });
             const availableContent = doc.conteudos.filter(c => !usedContentIds.has(c.id));
             if (availableContent.length === 0) {
                 alert("Todos os conteúdos desta documentação já foram adicionados!");
@@ -150,12 +126,12 @@ document.addEventListener('DOMContentLoaded', function() {
             contentView.style.display = 'block';
             contentViewTitle.textContent = `Selecione um Conteúdo de "${doc.titulo}"`;
         }
-    }
+    };
 
-    // A função createBox agora APENAS CRIA e RETORNA a caixa.
     function createBox(options) {
-        const rectWidth = 140;
-        const rectHeight = 60;
+        // Aumenta o tamanho das caixas
+        const rectWidth = 200; 
+        const rectHeight = 80;
     
         const rect = new fabric.Rect({
             width: rectWidth, height: rectHeight, fill: options.color,
@@ -163,81 +139,56 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         switch (options.customType) {
-            case 'subject':
-                rect.set({ stroke: 'black', strokeWidth: 2, strokeDashArray: [8, 4] });
-                break;
-            case 'trilha':
-                rect.set({ stroke: 'black', strokeWidth: 2 });
-                break;
+            case 'subject': rect.set({ stroke: 'black', strokeWidth: 2, strokeDashArray: [8, 4] }); break;
+            case 'trilha': rect.set({ stroke: 'black', strokeWidth: 2 }); break;
         }
     
         let textColor = '#000000';
-        if (options.customType !== 'subject') {
-            textColor = '#ffffff';
-        }
+        if (options.customType !== 'subject') textColor = '#ffffff';
     
-        const text = new fabric.Textbox(options.text, {
-            width: 120, fontSize: 16, textAlign: 'center',
+        const text = new fabric.Textbox(options.text || '', {
+            width: rectWidth - 20, // Ajusta a área de texto
+            fontSize: 16, textAlign: 'center',
             fill: textColor, originX: 'center', originY: 'center'
-        });
-    
-        const numberText = new fabric.Text('', {
-            fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
-            isHierarchyNumber: true, originX: 'left', originY: 'top',
-            left: -(rectWidth / 2) + 5, top: -(rectHeight / 2) + 5
         });
     
         const groupOptions = {
             left: options.coords.x, top: options.coords.y,
-            objectId: generateId(), type: 'box', hasControls: true,
-            selectable: true, cornerStyle: 'circle', customType: options.customType
+            objectId: generateId(), type: 'box', hasControls: false, lockRotation: true,
+            selectable: true, cornerStyle: 'circle', customType: options.customType,
+            baseText: options.text || '', // Armazena o título original
+            parentId: null,
+            childrenIds: (options.customType === 'subject') ? [] : undefined
         };
-    
-        if (options.customType === 'subject') {
-            groupOptions.childrenIds = [];
-        } else if (options.customType === 'content') {
-            groupOptions.parentId = null;
+        
+        if (options.customType === 'content') {
             groupOptions.contentId = options.contentId;
             groupOptions.fullText = options.fullText;
         } else if (options.customType === 'trilha') {
             groupOptions.trilhaId = options.trilhaId;
         }
     
-        return new fabric.Group([rect, text, numberText], groupOptions);
+        // O objeto de texto do número foi REMOVIDO daqui.
+        return new fabric.Group([rect, text], groupOptions);
     }
 
-    // --- Eventos de Botões e Fechamento de Modais ---
-    contentCloseButton.addEventListener('click', () => {
-        contentModal.style.display = 'none';
-    });
-    trilhaModalCloseButton.addEventListener('click', () => {
-        trilhaSelectModal.style.display = 'none';
-    });
-    
-    window.addEventListener('click', (e) => {
-        if (e.target === contentModal || e.target === trilhaSelectModal) {
-            contentModal.style.display = 'none';
-            trilhaSelectModal.style.display = 'none';
-        }
-    });
-
+    // --- Eventos de Botões ---
     document.getElementById('edit-text-button').addEventListener('click', () => {
         const active = canvas.getActiveObject();
-        if (!active || active.type !== 'box') {
-            alert("Nenhum item selecionado.");
-            return;
-        }
+        if (!active || active.type !== 'box') return alert("Nenhum item selecionado.");
         if (active.customType !== 'subject' && active.customType !== 'trilha') {
             alert("Apenas o título de 'Assuntos' e 'Trilhas' pode ser editado manualmente.");
             return;
         }
-        const textObj = active._objects.find(o => o.type === 'textbox' && !o.isHierarchyNumber);
-        if (!textObj) return;
-        const newText = prompt("Editar título:", textObj.text);
+
+        // Usa o 'baseText' para a edição, que não contém o número.
+        const newText = prompt("Editar título:", active.baseText);
         if (newText !== null) {
-            textObj.set('text', newText);
-            active.setCoords();
-            canvas.requestRenderAll();
+            active.baseText = newText; // Atualiza o título base
+            window.updateAllHierarchyNumbers(); // Recalcula a hierarquia para atualizar o texto exibido
+            canvas.renderAll();
         }
     });
+
+    // ... (outros listeners de fechamento de modais)
 });

@@ -1,77 +1,67 @@
+//Atualiza o texto da caixa, concatenando o número da hierarquia com o título base.
+function updateBoxNumber(box, number) {
+    if (!box || !box.getObjects) return;
+    box.hierarchyNumber = number;
+    const textBox = box.getObjects('textbox')[0];
+    if (textBox) {
+        // Se houver um número, concatena. Senão, mostra apenas o título base.
+        const newText = number ? `${number} - ${box.baseText}` : box.baseText;
+        textBox.set('text', newText);
+    }
+}
+
+//Função recursiva que numera os filhos hierárquicos de um nó pai.
+function numberHierarchyChildren(parent, parentNumber, objectMap) {
+    if (!parent || parent.customType !== 'subject' || !parent.childrenIds || parent.childrenIds.length === 0) {
+        return;
+    }
+    if (window.rebuildChildrenList) {
+        window.rebuildChildrenList(parent);
+    }
+    const childrenObjects = parent.childrenIds
+        .map(id => objectMap.get(id))
+        .filter(Boolean);
+    
+    childrenObjects.forEach((child, index) => {
+        const childNumber = `${parentNumber}.${index + 1}`;
+        updateBoxNumber(child, childNumber);
+        numberHierarchyChildren(child, childNumber, objectMap);
+    });
+}
+
+//Recalcula e atualiza todos os números hierárquicos no canvas.
 window.updateAllHierarchyNumbers = function() {
     const allObjects = canvas.getObjects();
-    const boxes = allObjects.filter(o => o.type === 'box');
+    const allDiagramObjects = allObjects.filter(o => o.type === 'box' || o.type === 'node');
     const arrows = allObjects.filter(o => o.type === 'arrow');
-    const objectMap = new Map(allObjects.map(o => [o.objectId, o]));
+    const objectMap = new Map(allDiagramObjects.map(o => [o.objectId, o]));
 
-    // 1. Limpa toda a numeração existente.
-    boxes.forEach(box => updateBoxNumber(box, ''));
+    allDiagramObjects.forEach(obj => updateBoxNumber(obj, ''));
 
-    // 2. Encontra os pontos de partida de todas as trilhas.
-    const startNodes = allObjects.filter(o => o.customType === 'start').sort((a, b) => a.top - b.top);
+    const startNodes = allDiagramObjects.filter(o => o.customType === 'start').sort((a, b) => a.top - b.top);
     
-    let subjectCounter = 1; // Contador global para os assuntos.
-
-    // 3. PRIMEIRO PASSO: Percorre cada trilha para numerar a sequência principal de Assuntos.
     startNodes.forEach(startNode => {
-        let currentObject = startNode;
-        const visitedInTrail = new Set(); // Para evitar loops infinitos
-
-        while (currentObject) {
-            if (visitedInTrail.has(currentObject.objectId)) break;
-            visitedInTrail.add(currentObject.objectId);
-
-            const outgoingArrows = arrows.filter(a => a.from === currentObject.objectId);
-            let nextSubject = null;
-
-            // Procura pela continuação da trilha (uma seta para outro assunto).
-            for (const arrow of outgoingArrows) {
-                const target = objectMap.get(arrow.to);
-                if (target && target.customType === 'subject') {
-                    // Se encontrar, numera o alvo e o define como o próximo a ser visitado.
-                    updateBoxNumber(target, `${subjectCounter}`);
-                    subjectCounter++;
-                    nextSubject = target;
-                    break;
-                }
+        let counter = 1;
+        let current = startNode;
+        const visited = new Set();
+        while (current) {
+            if (visited.has(current.objectId)) break;
+            visited.add(current.objectId);
+            if (current.type === 'box') {
+                updateBoxNumber(current, `${counter}`);
+                counter++;
             }
-            // Avança para o próximo assunto na cadeia.
-            currentObject = nextSubject;
+            const nextArrow = arrows.find(a => a.from === current.objectId && !a.isHierarchy);
+            current = nextArrow ? objectMap.get(nextArrow.to) : null;
         }
     });
 
-    // 4. SEGUNDO PASSO: Numera os conteúdos filhos de cada assunto que já foi numerado.
-    const subjects = boxes.filter(b => b.customType === 'subject');
+    const subjects = allDiagramObjects.filter(b => b.customType === 'subject');
     subjects.forEach(subject => {
-        // Procede apenas se o assunto recebeu um número no passo anterior.
-        if (subject.hierarchyNumber) {
-            // Garante que a lista de filhos do assunto está atualizada.
-            if (window.rebuildChildrenList) {
-                window.rebuildChildrenList(subject);
-            }
-
-            if (subject.childrenIds && subject.childrenIds.length > 0) {
-                const childrenObjects = subject.childrenIds
-                    .map(id => objectMap.get(id))
-                    .filter(Boolean)
-                    .sort((a, b) => a.top - b.top);
-                
-                childrenObjects.forEach((contentBox, contentIndex) => {
-                    const contentNumber = `${subject.hierarchyNumber}.${contentIndex + 1}`;
-                    updateBoxNumber(contentBox, contentNumber);
-                });
-            }
+        if (subject.hierarchyNumber && !subject.parentId) {
+             numberHierarchyChildren(subject, subject.hierarchyNumber, objectMap);
         }
     });
 
     canvas.renderAll();
 };
-
-function updateBoxNumber(box, number) {
-    if (!box) return;
-    box.hierarchyNumber = number;
-    const numberTextObj = box._objects.find(o => o.isHierarchyNumber);
-    if (numberTextObj) {
-        numberTextObj.set('text', number);
-    }
-}

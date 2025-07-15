@@ -11,7 +11,9 @@ window.createStartEndNode = function(options) {
     };
 
     if ((options.customType || options.type) === 'start') {
-        node = new fabric.Circle({ ...commonOptions, radius: 15, fill: 'black', customType: 'start', type: 'node' });
+        // CORREÇÃO: O nó de Início agora também é um Grupo para garantir consistência.
+        const circle = new fabric.Circle({ radius: 15, fill: 'black', originX: 'center', originY: 'center' });
+        node = new fabric.Group([circle], { ...commonOptions, customType: 'start', type: 'node' });
     } else { // 'end'
         const innerCircle = new fabric.Circle({ radius: 12, fill: 'black', originX: 'center', originY: 'center' });
         const outerCircle = new fabric.Circle({ radius: 18, fill: 'transparent', stroke: 'black', strokeWidth: 2, strokeDashArray: [5, 3], originX: 'center', originY: 'center' });
@@ -20,6 +22,12 @@ window.createStartEndNode = function(options) {
     return node;
 }
 
+
+/**
+ * Cria um gateway (losango) de paralelismo.
+ * @param {object} options - As opções para o gateway, incluindo coordenadas e tipo.
+ * @returns {fabric.Group} O grupo de objetos Fabric.js que representa o gateway.
+ */
 window.createGatewayNode = function(options) {
     const size = 40;
     const diamond = new fabric.Rect({

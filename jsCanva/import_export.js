@@ -16,11 +16,14 @@ document.getElementById("export-button").addEventListener("click", () => {
                 left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY, angle: obj.angle,
                 text: textObj ? textObj.text : "", textColor: textObj ? textObj.fill : "#000000",
                 fill: rectObj.fill, stroke: rectObj.stroke, strokeWidth: rectObj.strokeWidth,
-                strokeDashArray: rectObj.strokeDashArray, hierarchyNumber: obj.hierarchyNumber
+                strokeDashArray: rectObj.strokeDashArray, hierarchyNumber: obj.hierarchyNumber,
+                parentId: obj.parentId, childrenIds: obj.childrenIds || []
             };
-            if (obj.customType === 'subject') { objData.childrenIds = obj.childrenIds; } 
-            else if (obj.customType === 'content') { objData.parentId = obj.parentId; objData.contentId = obj.contentId; objData.fullText = obj.fullText; }
-            else if (obj.customType === 'trilha') { objData.trilhaId = obj.trilhaId; }
+            if (obj.customType === 'content') {
+                objData.contentId = obj.contentId; objData.fullText = obj.fullText;
+            } else if (obj.customType === 'trilha') {
+                objData.trilhaId = obj.trilhaId;
+            }
             data.diagramObjects.push(objData);
 
         } else if (obj.type === 'node') {
@@ -31,7 +34,13 @@ document.getElementById("export-button").addEventListener("click", () => {
             data.diagramObjects.push(objData);
 
         } else if (obj.type === 'arrow') {
-            data.arrows.push({ from: obj.from, to: obj.to, arrowSubType: obj.arrowSubType, tipo: obj.tipo });
+            data.arrows.push({ 
+                from: obj.from, 
+                to: obj.to, 
+                // A propriedade arrowSubType foi REMOVIDA daqui.
+                isHierarchy: obj.isHierarchy, 
+                pathType: obj.pathType 
+            });
         }
     });
 
@@ -56,51 +65,39 @@ document.getElementById("import-button").addEventListener("click", () => {
 
         canvas.clear();
         const diagramTitleInput = document.getElementById('diagram-title-input');
-        if (data.diagramTitle) {
-            diagramTitleInput.value = data.diagramTitle;
-        } else {
-            diagramTitleInput.value = "";
-        }
+        diagramTitleInput.value = data.diagramTitle || "";
 
         const idToObjectMap = {};
-        const objectsToLoad = data.diagramObjects || data.boxes || [];
+        const objectsToLoad = data.diagramObjects || [];
 
         objectsToLoad.forEach(objData => {
             let newObj;
-            const objectOptions = { ...objData, objectId: objData.id };
+            const objectOptions = { ...objData, objectId: objData.id, hasControls: false, lockRotation: true };
 
             if (objData.type === 'box') {
                 const rect = new fabric.Rect({
-                    width: 140, height: 60, fill: objData.fill, rx: 5, ry: 5,
+                    width: 200, height: 80,
+                    fill: objData.fill, rx: 5, ry: 5,
                     originX: 'center', originY: 'center', stroke: objData.stroke,
                     strokeWidth: objData.strokeWidth, strokeDashArray: objData.strokeDashArray
                 });
+                
                 const textColor = objData.textColor || '#000000';
-                const text = new fabric.Textbox(objData.text, {
-                    width: 120, fontSize: 16, textAlign: 'center',
+                const text = new fabric.Textbox(objData.baseText || '', {
+                    width: 180, fontSize: 16, textAlign: 'center',
                     fill: textColor, originX: 'center', originY: 'center'
                 });
-                const numberText = new fabric.Text(objData.hierarchyNumber || '', {
-                    fontSize: 14, fontWeight: 'bold', fill: 'rgba(0,0,0,0.4)',
-                    isHierarchyNumber: true, originX: 'left', originY: 'top',
-                    left: -70 + 5, top: -30 + 5
-                });
-                newObj = new fabric.Group([rect, text, numberText], objectOptions);
+                
+                newObj = new fabric.Group([rect, text], objectOptions);
             
             } else if (objData.type === 'node') {
                 switch(objData.customType) {
-                    case 'start':
-                    case 'end':
-                        newObj = window.createStartEndNode(objectOptions);
-                        break;
-                    case 'exclusive_gateway':
-                    case 'parallel_gateway':
-                    case 'inclusive_gateway':
-                        newObj = window.createGatewayNode(objectOptions);
-                        break;
+                    case 'start': case 'end':
+                        newObj = window.createStartEndNode(objectOptions); break;
+                    case 'exclusive_gateway': case 'parallel_gateway': case 'inclusive_gateway':
+                        newObj = window.createGatewayNode(objectOptions); break;
                 }
             }
-
             if (newObj) {
                 canvas.add(newObj);
                 idToObjectMap[objData.id] = newObj;
@@ -115,15 +112,13 @@ document.getElementById("import-button").addEventListener("click", () => {
                 const startObj = idToObjectMap[arrowData.from];
                 const endObj = idToObjectMap[arrowData.to];
                 if (startObj && endObj) {
-                    window.createStandardArrow(startObj, endObj, arrowData.tipo);
+                    // A propriedade arrowSubType não é mais necessária aqui.
+                    window.createStandardArrow(startObj, endObj, arrowData.isHierarchy, arrowData.pathType);
                 }
             });
         }
         
         setTimeout(() => {
-            canvas.getObjects().filter(o => o.customType === 'subject').forEach(s => {
-                if(window.rebuildChildrenList) window.rebuildChildrenList(s);
-            });
             if(window.updateAllHierarchyNumbers) window.updateAllHierarchyNumbers();
         }, 100);
     };

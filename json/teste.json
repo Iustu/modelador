@@ -1,42 +1,196 @@
 {
-  "boxes": [
+  "diagramTitle": "teste",
+  "diagramObjects": [
     {
-      "id": "obj-1umxkg0ss",
-      "left": 65,
-      "top": 99,
+      "type": "node",
+      "customType": "start",
+      "id": "obj-2zls7q6rt",
+      "left": 141,
+      "top": 40.765625,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    {
+      "type": "box",
+      "customType": "trilha",
+      "id": "obj-xp0ycnts9",
+      "left": 39,
+      "top": 105.765625,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
-      "text": "Teste",
-      "fill": "#f1c40f",
+      "baseText": "Desenvolvimento Front-End Essencial",
+      "fill": "#009c3b",
+      "stroke": "black",
+      "strokeWidth": 2,
+      "strokeDashArray": null,
+      "parentId": null,
+      "childrenIds": [],
+      "trilhaId": "trilha-frontend"
+    },
+    {
+      "type": "box",
       "customType": "subject",
-      "hierarchyNumber": "1",
+      "id": "obj-3eepi6yy6",
+      "left": 43,
+      "top": 259.765625,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "baseText": "sds",
+      "fill": "#f1c40f",
+      "stroke": "black",
+      "strokeWidth": 2,
+      "strokeDashArray": [
+        8,
+        4
+      ],
+      "parentId": null,
       "childrenIds": [
-        "obj-fa14s1lvf"
+        "obj-6rs0oyx4u",
+        "obj-vk1cc1l3g"
       ]
     },
     {
-      "id": "obj-fa14s1lvf",
-      "left": 343,
-      "top": 106,
+      "type": "box",
+      "customType": "subject",
+      "id": "obj-6rs0oyx4u",
+      "left": 365,
+      "top": 260.765625,
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0,
-      "text": "Introdução à Lógica e Algoritmos",
-      "fill": "#3498db",
+      "baseText": "sds",
+      "fill": "#f1c40f",
+      "stroke": "black",
+      "strokeWidth": 2,
+      "strokeDashArray": [
+        8,
+        4
+      ],
+      "parentId": "obj-3eepi6yy6",
+      "childrenIds": [
+        "obj-uxzl8tnwx"
+      ]
+    },
+    {
+      "type": "box",
       "customType": "content",
-      "hierarchyNumber": "1.1",
-      "parentId": "obj-1umxkg0ss",
+      "id": "obj-vk1cc1l3g",
+      "left": 356,
+      "top": 454.765625,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "baseText": "Variáveis, Tipos de Dados e Operadores em C",
+      "fill": "#3498db",
+      "stroke": null,
+      "strokeWidth": 1,
+      "strokeDashArray": null,
+      "parentId": "obj-3eepi6yy6",
+      "childrenIds": [],
+      "contentId": "alg-02",
+      "fullText": "Para um algoritmo manipular informações, precisamos armazená-las em variáveis. Em C, cada variável tem um 'tipo de dado' que define o que ela pode guardar (ex: int para números inteiros, float para decimais, char para caracteres). Usamos operadores aritméticos (+, -, *, /) e lógicos (&&, ||, !) para realizar cálculos e tomar decisões."
+    },
+    {
+      "type": "box",
+      "customType": "content",
+      "id": "obj-h1m09k1ww",
+      "left": 41,
+      "top": 435.765625,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "baseText": "Estruturas Condicionais (if/else)",
+      "fill": "#3498db",
+      "stroke": null,
+      "strokeWidth": 1,
+      "strokeDashArray": null,
+      "parentId": null,
+      "childrenIds": [],
+      "contentId": "alg-03",
+      "fullText": "A lógica de um algoritmo frequentemente depende de condições. A estrutura 'if' (se) permite executar um bloco de código apenas se uma condição for verdadeira. O 'else' (senão) fornece um caminho alternativo para quando a condição for falsa. Exemplo: if (idade >= 18) { ... } else { ... }"
+    },
+    {
+      "type": "node",
+      "customType": "end",
+      "id": "obj-va5izi30d",
+      "left": 140,
+      "top": 614.765625,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    {
+      "type": "box",
+      "customType": "content",
+      "id": "obj-uxzl8tnwx",
+      "left": 355,
+      "top": 70.765625,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0,
+      "baseText": "Introdução à Lógica e Algoritmos",
+      "fill": "#3498db",
+      "stroke": null,
+      "strokeWidth": 1,
+      "strokeDashArray": null,
+      "parentId": "obj-6rs0oyx4u",
+      "childrenIds": [],
       "contentId": "alg-01",
       "fullText": "Um algoritmo é uma sequência finita de passos lógicos para resolver um problema. Em programação, usamos linguagens como C para escrever esses passos de forma que o computador possa entendê-los. A lógica de programação é a base para organizar esses passos de maneira eficiente e correta."
     }
   ],
   "arrows": [
     {
-      "from": "obj-1umxkg0ss",
-      "to": "obj-fa14s1lvf",
+      "from": "obj-2zls7q6rt",
+      "to": "obj-xp0ycnts9",
       "arrowSubType": "standard",
-      "tipo": "Percorrível"
+      "isHierarchy": false,
+      "pathType": "obrigatório"
+    },
+    {
+      "from": "obj-xp0ycnts9",
+      "to": "obj-3eepi6yy6",
+      "arrowSubType": "standard",
+      "isHierarchy": false,
+      "pathType": "obrigatório"
+    },
+    {
+      "from": "obj-3eepi6yy6",
+      "to": "obj-6rs0oyx4u",
+      "arrowSubType": "standard",
+      "isHierarchy": true,
+      "pathType": "obrigatório"
+    },
+    {
+      "from": "obj-6rs0oyx4u",
+      "to": "obj-vk1cc1l3g",
+      "arrowSubType": "standard",
+      "isHierarchy": false,
+      "pathType": "obrigatório"
+    },
+    {
+      "from": "obj-3eepi6yy6",
+      "to": "obj-h1m09k1ww",
+      "arrowSubType": "standard",
+      "isHierarchy": false,
+      "pathType": "obrigatório"
+    },
+    {
+      "from": "obj-h1m09k1ww",
+      "to": "obj-va5izi30d",
+      "arrowSubType": "standard",
+      "isHierarchy": false,
+      "pathType": "obrigatório"
+    },
+    {
+      "from": "obj-6rs0oyx4u",
+      "to": "obj-uxzl8tnwx",
+      "arrowSubType": "standard",
+      "isHierarchy": true,
+      "pathType": "obrigatório"
     }
   ]
 }

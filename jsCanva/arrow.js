@@ -1,36 +1,45 @@
 window.isDrawingArrow = false;
-window.arrowTypeToDraw = null; 
+window.isHierarchyArrow = false;
 window.arrowStartObject = null;
 
-// Listener para o botão de seta contínua
-document.getElementById('arrow-button').addEventListener('click', (e) => {
-    document.getElementById('dashed-arrow-button').classList.remove('active');
-    e.currentTarget.classList.add('active');
-    window.isDrawingArrow = true;
-    window.arrowTypeToDraw = 'continua';
-    window.arrowStartObject = null;
-});
-
-// Listener para o botão de seta tracejada
-document.getElementById('dashed-arrow-button').addEventListener('click', (e) => {
+//Helper para limpar o estado ativo dos botões de seta.
+function clearActiveArrowButtons() {
     document.getElementById('arrow-button').classList.remove('active');
+    document.getElementById('dashed-arrow-button').classList.remove('active');
+}
+
+//Listener para o botão de seta contínua (NÃO HIERÁRQUICA)
+document.getElementById('arrow-button').addEventListener('click', (e) => {
+    clearActiveArrowButtons();
     e.currentTarget.classList.add('active');
     window.isDrawingArrow = true;
-    window.arrowTypeToDraw = 'tracejada';
+    window.isHierarchyArrow = false;
     window.arrowStartObject = null;
 });
 
-// Manipulador de clique para criar a seta no canvas
+//Listener para o botão de seta tracejada (HIERÁRQUICA)
+document.getElementById('dashed-arrow-button').addEventListener('click', (e) => {
+    clearActiveArrowButtons();
+    e.currentTarget.classList.add('active');
+    window.isDrawingArrow = true;
+    window.isHierarchyArrow = true;
+    window.arrowStartObject = null;
+});
+
+//Manipulador de clique para criar a seta no canvas
 window.handleMouseDownForArrow = function (e) {
     if (!window.isDrawingArrow) return;
-
     if (e.target && (e.target.type === 'box' || e.target.type === 'node')) {
         if (!window.arrowStartObject) {
             window.arrowStartObject = e.target;
         } else {
             const endBox = e.target;
             if (window.arrowStartObject.objectId !== endBox.objectId) {
-                window.createStandardArrow(window.arrowStartObject, endBox, window.arrowTypeToDraw);
+                let pathType = 'obrigatório';
+                const startType = window.arrowStartObject.customType;
+                if (startType === 'exclusive_gateway') pathType = 'caminho exclusivo';
+                else if (startType === 'parallel_gateway') pathType = 'opcional';
+                window.createStandardArrow(window.arrowStartObject, endBox, window.isHierarchyArrow, pathType);
             }
             window.cancelArrowDrawing();
         }
@@ -39,47 +48,43 @@ window.handleMouseDownForArrow = function (e) {
     }
 };
 
-// Cancela o modo de desenho de seta e remove o estado ativo dos botões.
+//Cancela o modo de desenho de seta e remove o estado ativo dos botões.
 window.cancelArrowDrawing = function() {
-    document.getElementById('arrow-button').classList.remove('active');
-    document.getElementById('dashed-arrow-button').classList.remove('active');
+    clearActiveArrowButtons();
     window.isDrawingArrow = false;
+    window.isHierarchyArrow = false;
     window.arrowStartObject = null;
-    window.arrowTypeToDraw = null;
     canvas.discardActiveObject().renderAll();
 }
 
-// A função updateParentChildRelationship é mantida para popular a lista de filhos.
-function updateParentChildRelationship(startObj, endObj) {
-    if (endObj.customType !== 'content') return;
-    let subject = null;
+//Atualiza a relação pai-filho com base na propriedade isHierarchy.
+function updateParentChildRelationship(startObj, endObj, isHierarchy) {
+    if (!isHierarchy) return;
     if (startObj.customType === 'subject') {
-        subject = startObj;
-    } else if (startObj.parentId) {
-        subject = canvas.getObjects().find(o => o.objectId === startObj.parentId);
-    }
-    if (subject && typeof window.rebuildChildrenList === 'function') {
-        // O setTimeout é removido pois a chamada global já cuidará da ordem.
-        window.rebuildChildrenList(subject);
+        if (typeof window.rebuildChildrenList === 'function') {
+            window.rebuildChildrenList(startObj);
+        }
     }
 }
 
-window.createStandardArrow = function(startObj, endObj, tipo) {
+//Cria a seta padrão no canvas.
+window.createStandardArrow = function(startObj, endObj, isHierarchy, pathType) {
     const startPoint = getEdgePoint(startObj, endObj.getCenterPoint());
     const endPoint = getEdgePoint(endObj, startObj.getCenterPoint());
     const lineOptions = { stroke: 'black', strokeWidth: 2, selectable: false, objectCaching: false };
-    if (tipo === 'tracejada') {
-        lineOptions.strokeDashArray = [5, 5];
-    }
+    if (isHierarchy) lineOptions.strokeDashArray = [5, 5];
+    
     const line = new fabric.Line([startPoint.x, startPoint.y, endPoint.x, endPoint.y], lineOptions);
     const angle = fabric.util.radiansToDegrees(Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x)) + 90;
     const tri = new fabric.Triangle({ width: 10, height: 15, fill: 'black', left: endPoint.x, top: endPoint.y, angle: angle, originX: 'center', originY: 'center', selectable: false, objectCaching: false });
+    
     const arrow = new fabric.Group([line, tri], {
         type: 'arrow',
-        arrowSubType: 'standard',
+        // A propriedade arrowSubType foi REMOVIDA daqui.
         from: startObj.objectId,
         to: endObj.objectId,
-        tipo: tipo,
+        isHierarchy: isHierarchy,
+        pathType: pathType,
         selectable: true,
         lockMovementX: true,
         lockMovementY: true,
@@ -87,14 +92,13 @@ window.createStandardArrow = function(startObj, endObj, tipo) {
     });
 
     canvas.add(arrow).setActiveObject(arrow);
-    
-    // CORREÇÃO: A atualização da hierarquia agora é chamada sempre.
-    updateParentChildRelationship(startObj, endObj);
+    updateParentChildRelationship(startObj, endObj, isHierarchy);
     if (window.updateAllHierarchyNumbers) {
         window.updateAllHierarchyNumbers();
     }
 };
 
+//Atualiza a posição das setas quando um objeto é movido.
 window.updateArrowsForObject = function(movedObj) {
     if (!movedObj || (movedObj.type !== 'box' && movedObj.type !== 'node')) return;
     canvas.getObjects().forEach(obj => {
@@ -116,6 +120,7 @@ window.updateArrowsForObject = function(movedObj) {
     canvas.requestRenderAll();
 }
 
+//Calcula o ponto de conexão na borda de um objeto.
 function getEdgePoint(rectGroup, targetPoint) {
     const center = rectGroup.getCenterPoint();
     const w = (rectGroup.width * rectGroup.scaleX) / 2, h = (rectGroup.height * rectGroup.scaleY) / 2;
@@ -124,9 +129,8 @@ function getEdgePoint(rectGroup, targetPoint) {
     const slope = dy / dx;
     const edgeX = dx > 0 ? w : -w;
     const edgeY = edgeX * slope;
-    if (Math.abs(edgeY) <= h) {
-        return { x: center.x + edgeX, y: center.y + edgeY };
-    } else {
+    if (Math.abs(edgeY) <= h) return { x: center.x + edgeX, y: center.y + edgeY };
+    else {
         const edgeY2 = dy > 0 ? h : -h;
         const edgeX2 = edgeY2 / slope;
         return { x: center.x + edgeX2, y: center.y + edgeY2 };
