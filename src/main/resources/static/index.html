@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Learning Curve™ </title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+</head>
+<body>
+<div id="app-container">
+    <header class="app-header">
+        <div class="header-content">
+            <h1>Modelador de Trilhas</h1>
+            <input type="text" id="diagram-title-input" placeholder="Digite o título do seu diagrama aqui...">
+        </div>
+    </header>
+    <main class="main-content">
+        <aside class="sidebar">
+            <div class="sidebar-group">
+                <h3>Formas</h3>
+                <div class="sidebar-row-3">
+                    <div class="shape shape-square verde" draggable="true" data-type="trilha" title="Trilha">T</div>
+                    <div class="shape shape-square amarelo" draggable="true" data-type="subject" title="Assunto">A</div>
+                    <div class="shape shape-square azul" draggable="true" data-type="content" title="Conteúdo">C</div>
+                </div>
+                <div class="sidebar-row-2">
+                    <div class="shape node-shape compact" draggable="true" data-type="start" title="Início">
+                        <div class="start-node-icon small"></div> Início
+                    </div>
+                    <div class="shape node-shape compact" draggable="true" data-type="end" title="Fim">
+                        <div class="end-node-icon small">
+                            <div class="end-node-icon-inner"></div>
+                        </div> Fim
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-group">
+                <h3>Caminhos</h3>
+                <button id="arrow-button" title="Caminho Contínuo (Fluxo)">➤ Fluxo</button>
+                <button id="dashed-arrow-button" title="Caminho Tracejado (Hierarquia)">⤏ Hierarquia</button>
+            </div>
+
+            <div class="sidebar-group">
+                <h3>Ferramentas</h3>
+                <button id="edit-text-button">✎ Editar Propriedades</button>
+                <button id="delete-button">🗑️ Excluir Item</button>
+            </div>
+
+            <div class="sidebar-group">
+                <h3>Arquivo</h3>
+                <div class="sidebar-row-2">
+                    <button id="salvar-button" class="btn-icon" title="Salvar na Nuvem">💾☁️</button>
+                    <button id="abrir-button" class="btn-icon" title="Abrir da Nuvem">📂☁️</button>
+                </div>
+                <div class="sidebar-row-2">
+                    <button id="export-button" class="btn-icon" title="Salvar Local (Exportar)">💾💻</button>
+                    <button id="import-button" class="btn-icon" title="Abrir Local (Importar)">📂💻</button>
+                </div>
+                <div class="sidebar-row-2">
+                    <button id="delete-trilha-button" class="btn-icon btn-danger" title="Apagar Trilha do Banco">🗑️</button>
+                    <button id="validate-button" class="btn-icon" title="Validar Diagrama">🔎</button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="canvas-wrapper">
+            <canvas id="canvas"></canvas>
+        </div>
+    </main>
+</div>
+
+<div id="modal-propriedades" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span id="btn-fechar-modal-propriedades" class="modal-close-button">&times;</span>
+        <h3>Propriedades do Elemento</h3>
+        <div id="grupo-props-texto" class="props-group" style="display: none;">
+            <h4>Título / Texto</h4>
+            <input type="text" id="input-texto-elemento" class="modal-input-text" placeholder="Digite o texto aqui...">
+        </div>
+        <div id="grupo-props-assunto" class="props-group" style="display: none;">
+            <h4>Lógica de Sucessão</h4>
+            <p>Como os caminhos seguintes devem ser tratados?</p>
+            <select id="select-tipo-selecao">
+                <option value="MULTIPLA">Múltipla (OU Inclusivo)</option>
+                <option value="EXCLUSIVA">Exclusiva (XOR)</option>
+                <option value="OBRIGATORIA">Obrigatória (E Paralelo)</option>
+            </select>
+        </div>
+        <div id="grupo-props-caminho" class="props-group" style="display: none;">
+            <h4>Lógica do Caminho</h4>
+            <p>Qual o papel deste caminho?</p>
+            <select id="select-tipo-caminho">
+                <option value="OBRIGATORIO">Obrigatório</option>
+                <option value="OPCIONAL">Opcional</option>
+                <option value="PREFERENCIAL">Preferencial</option>
+                <option value="RECOMENDADO">Recomendado</option>
+            </select>
+        </div>
+        <div id="grupo-props-nenhum" class="props-group" style="display: none;">
+            <p>Selecione um "Assunto", "Conteúdo" ou "Caminho".</p>
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button id="btn-salvar-props" style="padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">Concluir</button>
+        </div>
+    </div>
+</div>
+
+<div id="passo-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span id="passo-modal-fechar-btn" class="modal-close-button">&times;</span>
+        <div id="passo-documentacao-view" style="display: none;">
+            <h2>Selecione uma Documentação</h2>
+            <ul id="passo-documentacao-lista"></ul>
+        </div>
+        <div id="passo-conteudo-view">
+            <button id="passo-modal-voltar-btn" title="Voltar" style="display: none;">&larr; Voltar</button>
+            <h2 id="passo-conteudo-titulo">Selecione um Conteúdo</h2>
+            <ul id="passo-conteudo-lista"></ul>
+        </div>
+    </div>
+</div>
+
+<div id="trilha-select-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span id="trilha-modal-close-button" class="modal-close-button">&times;</span>
+        <h2>Selecione uma Trilha</h2>
+        <ul id="trilha-list"></ul>
+    </div>
+</div>
+
+<div id="open-from-db-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span id="open-modal-close-button" class="modal-close-button">&times;</span>
+        <h2>Abrir Trilha da Nuvem</h2>
+        <ul id="trilha-db-list"></ul>
+    </div>
+</div>
+
+<script type="module" src="jsCanva/canvas_principal.js"></script>
+
+</body>
+</html>

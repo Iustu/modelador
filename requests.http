@@ -1,0 +1,76 @@
+### 7. Buscar TODAS as Trilhas (GET Lista)
+# Retorna uma lista de todas as trilhas no banco de dados.
+GET http://localhost:8080/api/conteudos
+
+<> 2025-09-21T223909.200.json
+<> 2025-09-21T223859.200.json
+
+### 1. Criar uma Nova Trilha (POST)
+# Clique no ícone de "play" verde ao lado de POST para executar.
+# Esta requisição cria uma nova trilha e guarda o ID dela numa variável chamada "trilhaId".
+# @name criarTrilha
+POST http://localhost:8080/api/trilhas
+Content-Type: application/json
+
+< E:\Modelador-Trilha-Back\src\main\java\com\learningcurve\teste.json
+
+<> 2025-09-21T224933.200.json
+<> 2025-09-21T223444.200.json
+
+### Guardar o ID da resposta para usar nas próximas requisições
+@trilhaId = 1
+
+###
+# ==============================================================================
+###
+
+### 2. Buscar a Trilha Criada (GET por ID)
+# Esta requisição usa a variável {{trilhaId}} guardada do passo anterior.
+GET http://localhost:8080/api/trilhas/{{trilhaId}}
+
+###
+# ==============================================================================
+###
+
+### 3. Buscar TODAS as Trilhas (GET Lista)
+# Retorna uma lista de todas as trilhas no banco de dados.
+GET http://localhost:8080/api/trilhas
+
+<> 2025-09-21T223909.200.json
+<> 2025-09-21T223859.200.json
+
+###
+# ==============================================================================
+###
+
+### 4. Atualizar a Trilha (PUT)
+# Usa o {{trilhaId}} para atualizar a trilha.
+# Note que estamos a enviar um corpo (body) JSON com o título alterado.
+PUT http://localhost:8080/api/trilhas/{{trilhaId}}
+Content-Type: application/json
+
+{
+  "diagramTitle": "Minha Trilha ATUALIZADA no IntelliJ",
+  "diagramObjects": [
+    {
+      "type": "node",
+      "customType": "start",
+      "id": "obj-start",
+      "left": 150,
+      "top": 50,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    }
+  ],
+  "arrows": []
+}
+
+###
+# ==============================================================================
+###
+
+### 5. Deletar a Trilha (DELETE)
+# Usa o {{trilhaId}} para apagar a trilha do banco de dados.
+# A resposta esperada é "204 No Content".
+DELETE http://localhost:8080/api/trilhas/{{trilhaId}}
